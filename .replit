@@ -6,3 +6,15 @@ channel = "stable-24_05"
 
 [deployment]
 run = ["sh", "-c", "Python3 main.py"]
+
+[workflows]
+runButton = "Run Dating Bot"
+
+[[workflows.workflow]]
+name = "Run Dating Bot"
+author = 44139963
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python3 main.py"
