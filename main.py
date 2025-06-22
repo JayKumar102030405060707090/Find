@@ -92,13 +92,15 @@ async def start_command(client: Client, message: Message):
             except Exception as e:
                 LOGS.warning(f"Referral error: {e}")
 
-    # Premium Welcome Interface
+    # Advanced Welcome Interface with all features
     welcome_keyboard = InlineKeyboardMarkup([
         [InlineKeyboardButton("💎 ᴘʀᴇᴍɪᴜᴍ ᴍᴀᴛᴄʜɪɴɢ", callback_data="premium_match"),
          InlineKeyboardButton("🎮 ɪɴʟɪɴᴇ ɢᴀᴍᴇs", callback_data="inline_games")],
         [InlineKeyboardButton("🔍 ғɪɴᴅ ᴘᴀʀᴛɴᴇʀ", callback_data="find_partner"),
          InlineKeyboardButton("👤 ᴍʏ ᴘʀᴏғɪʟᴇ", callback_data="view_profile")],
-        [InlineKeyboardButton("💰 ᴇᴀʀɴ ᴄᴏɪɴs", callback_data="earn_coins"),
+        [InlineKeyboardButton("🤖 ᴀɪ ғᴇᴀᴛᴜʀᴇs", callback_data="advanced_features"),
+         InlineKeyboardButton("👥 sᴏᴄɪᴀʟ ʜᴜʙ", callback_data="social_hub")],
+        [InlineKeyboardButton("🎯 ɢᴀᴍᴇ ᴄᴇɴᴛᴇʀ", callback_data="game_center"),
          InlineKeyboardButton("🏆 ᴠɪᴘ sᴛᴀᴛᴜs", callback_data="vip_status")],
         [InlineKeyboardButton("🌟 ᴅᴀɪʟʏ ʀᴇᴡᴀʀᴅs", callback_data="daily_rewards"),
          InlineKeyboardButton("📊 sᴛᴀᴛɪsᴛɪᴄs", callback_data="user_stats")],
