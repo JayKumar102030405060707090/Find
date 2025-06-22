@@ -1,4 +1,3 @@
-
 from pyrogram import Client, filters
 from config import *
 import logging
@@ -122,6 +121,54 @@ async def start_command(client: Client, message: Message):
         )
     except Exception as e:
         LOGS.warning(f"Log group error: {e}")
+
+@bot.on_callback_query(filters.regex("premium_match"))
+async def premium_match_callback(client: Client, callback_query):
+    await callback_query.answer("💎 Premium Matching - Coming Soon!")
+
+@bot.on_callback_query(filters.regex("inline_games"))
+async def inline_games_callback(client: Client, callback_query):
+    await callback_query.answer("🎮 Inline Games - Coming Soon!")
+
+@bot.on_callback_query(filters.regex("find_partner"))
+async def find_partner_callback(client: Client, callback_query):
+    await callback_query.answer("🔍 Find Partner - Coming Soon!")
+
+@bot.on_callback_query(filters.regex("view_profile"))
+async def view_profile_callback(client: Client, callback_query):
+    await callback_query.answer("👤 My Profile - Coming Soon!")
+
+@bot.on_callback_query(filters.regex("advanced_features"))
+async def advanced_features_callback(client: Client, callback_query):
+    await callback_query.answer("🤖 AI Features - Coming Soon!")
+
+@bot.on_callback_query(filters.regex("social_hub"))
+async def social_hub_callback(client: Client, callback_query):
+    await callback_query.answer("👥 Social Hub - Coming Soon!")
+
+@bot.on_callback_query(filters.regex("game_center"))
+async def game_center_callback(client: Client, callback_query):
+    await callback_query.answer("🎯 Game Center - Coming Soon!")
+
+@bot.on_callback_query(filters.regex("vip_status"))
+async def vip_status_callback(client: Client, callback_query):
+    await callback_query.answer("🏆 VIP Status - Coming Soon!")
+
+@bot.on_callback_query(filters.regex("daily_rewards"))
+async def daily_rewards_callback(client: Client, callback_query):
+    await callback_query.answer("🌟 Daily Rewards - Coming Soon!")
+
+@bot.on_callback_query(filters.regex("user_stats"))
+async def user_stats_callback(client: Client, callback_query):
+    await callback_query.answer("📊 Statistics - Coming Soon!")
+
+@bot.on_callback_query(filters.regex("love_letters"))
+async def love_letters_callback(client: Client, callback_query):
+    await callback_query.answer("💌 Love Letters - Coming Soon!")
+
+@bot.on_callback_query(filters.regex("compatibility_test"))
+async def compatibility_test_callback(client: Client, callback_query):
+    await callback_query.answer("🎯 Compatibility Test - Coming Soon!")
 
 # Load all modules
 try:

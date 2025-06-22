@@ -27,6 +27,29 @@ async def start(bot, message: Message):
 
     if len(args) > 1:
         referred_by = int(args[1]) if args[1].isdigit() else None
+        
+        if referred_by and referred_by != user_id:
+            # Check if user already exists
+            existing_user = users.find_one({"_id": user_id})
+            if not existing_user:
+                # Add referral coins to referrer
+                users.update_one(
+                    {"_id": referred_by},
+                    {"$inc": {"coins": REFERRAL_COIN, "ref_count": 1}},
+                    upsert=True
+                )
+                
+                # Mark user as referred
+                users.update_one(
+                    {"_id": user_id},
+                    {"$set": {"referred_by": referred_by}},
+                    upsert=True
+                )
+                
+                await message.reply(
+                    f"🎉 Welcome! You were referred by a friend!\n"
+                    f"Both you and your friend got {REFERRAL_COIN} coins! 💰"
+                )one
 
     existing_user = users.find_one({"_id": user_id})
     if not existing_user:

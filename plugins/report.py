@@ -34,6 +34,35 @@ async def report_user(bot, message: Message):
 async def handle_report_callback(bot, callback):
     reason, from_id, to_id = callback.matches[0].groups()
     from_id, to_id = int(from_id), int(to_id)
+    
+    # Save report to database
+    reports = db['reports']
+    reports.insert_one({
+        "reporter": from_id,
+        "reported": to_id,
+        "reason": reason,
+        "timestamp": str(datetime.now())
+    })
+    
+    await callback.message.edit_text(
+        "✅ Report submitted successfully!\n"
+        "Our team will review this case.\n"
+        "Thank you for keeping our community safe! 🛡️"
+    )
+    
+    # Notify owner
+    try:
+        await bot.send_message(
+            OWNER_ID,
+            f"🚨 New Report!\n"
+            f"Reporter: {from_id}\n"
+            f"Reported: {to_id}\n"
+            f"Reason: {reason}"
+        )
+    except:
+        pass
+    
+    await callback.answer()from_id), int(to_id)
 
     time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
