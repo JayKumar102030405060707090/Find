@@ -155,6 +155,230 @@ async def compatibility_test(bot, callback: CallbackQuery):
     )
     await callback.answer()
 
+@Client.on_callback_query(filters.regex("upgrade_premium"))
+async def upgrade_premium(bot, callback: CallbackQuery):
+    upgrade_keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton("💎 1 ᴍᴏɴᴛʜ - 500 ᴄᴏɪɴs", callback_data="buy_premium_1"),
+         InlineKeyboardButton("💎 3 ᴍᴏɴᴛʜs - 1200 ᴄᴏɪɴs", callback_data="buy_premium_3")],
+        [InlineKeyboardButton("💎 6 ᴍᴏɴᴛʜs - 2000 ᴄᴏɪɴs", callback_data="buy_premium_6"),
+         InlineKeyboardButton("💎 1 ʏᴇᴀʀ - 3500 ᴄᴏɪɴs", callback_data="buy_premium_12")],
+        [InlineKeyboardButton("🎁 ғʀᴇᴇ ᴛʀɪᴀʟ (24ʜ)", callback_data="free_trial")]
+    ])
+    
+    await callback.message.edit_text(
+        format_reply("💎 ᴘʀᴇᴍɪᴜᴍ ᴍᴇᴍʙᴇʀsʜɪᴘ 💎\n\n✨ sᴍᴀʀᴛ ᴍᴀᴛᴄʜɪɴɢ\n🎯 ᴀᴅᴠᴀɴᴄᴇᴅ ғɪʟᴛᴇʀs\n💌 ᴜɴʟɪᴍɪᴛᴇᴅ ᴍᴇssᴀɢᴇs\n🏆 ᴇxᴄʟᴜsɪᴠᴇ ғᴇᴀᴛᴜʀᴇs\n👑 ᴘʀᴇᴍɪᴜᴍ ʙᴀᴅɢᴇ"),
+        reply_markup=upgrade_keyboard
+    )
+    await callback.answer()
+
+@Client.on_callback_query(filters.regex("buy_premium_"))
+async def buy_premium(bot, callback: CallbackQuery):
+    duration = callback.data.split("_")[2]
+    user_data = users.find_one({"_id": callback.from_user.id})
+    
+    prices = {"1": 500, "3": 1200, "6": 2000, "12": 3500}
+    price = prices.get(duration, 500)
+    
+    if user_data.get("coins", 0) >= price:
+        users.update_one(
+            {"_id": callback.from_user.id},
+            {
+                "$inc": {"coins": -price},
+                "$set": {"premium": True, "premium_expires": datetime.now().isoformat()}
+            }
+        )
+        
+        await callback.message.edit_text(
+            format_reply(f"🎉 ᴘʀᴇᴍɪᴜᴍ ᴀᴄᴛɪᴠᴀᴛᴇᴅ! 🎉\n\nᴅᴜʀᴀᴛɪᴏɴ: {duration} ᴍᴏɴᴛʜ(s)\nᴇɴᴊᴏʏ ᴀʟʟ ᴘʀᴇᴍɪᴜᴍ ғᴇᴀᴛᴜʀᴇs! ✨"),
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("💎 ᴇxᴘʟᴏʀᴇ ғᴇᴀᴛᴜʀᴇs", callback_data="premium_match")]
+            ])
+        )
+    else:
+        await callback.message.edit_text(
+            format_reply(f"💰 ɪɴsᴜғғɪᴄɪᴇɴᴛ ᴄᴏɪɴs!\n\nɴᴇᴇᴅᴇᴅ: {price} ᴄᴏɪɴs\nʏᴏᴜ ʜᴀᴠᴇ: {user_data.get('coins', 0)} ᴄᴏɪɴs"),
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("💰 ᴇᴀʀɴ ᴄᴏɪɴs", callback_data="earn_coins")]
+            ])
+        )
+    await callback.answer()
+
+@Client.on_callback_query(filters.regex("free_trial"))
+async def free_trial(bot, callback: CallbackQuery):
+    users.update_one(
+        {"_id": callback.from_user.id},
+        {"$set": {"premium": True, "trial_user": True, "trial_expires": (datetime.now() + timedelta(hours=24)).isoformat()}}
+    )
+    
+    await callback.message.edit_text(
+        format_reply("🎁 ғʀᴇᴇ ᴛʀɪᴀʟ ᴀᴄᴛɪᴠᴀᴛᴇᴅ! 🎁\n\n24 ʜᴏᴜʀs ᴏғ ғᴜʟʟ ᴘʀᴇᴍɪᴜᴍ ᴀᴄᴄᴇss! ✨\nᴇɴᴊᴏʏ ᴀʟʟ ғᴇᴀᴛᴜʀᴇs!"),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("💎 sᴛᴀʀᴛ ᴜsɪɴɢ", callback_data="premium_match")]
+        ])
+    )
+    await callback.answer()
+
+@Client.on_callback_query(filters.regex("smart_match"))
+async def smart_match(bot, callback: CallbackQuery):
+    await callback.message.edit_text(
+        format_reply("🧠 sᴍᴀʀᴛ ᴍᴀᴛᴄʜɪɴɢ ᴀᴄᴛɪᴠᴀᴛᴇᴅ! 🧠\n\nᴀɴᴀʟʏᴢɪɴɢ ʏᴏᴜʀ ᴘʀᴇғᴇʀᴇɴᴄᴇs... 🔍"),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("🔍 ғɪɴᴅ ᴍᴀᴛᴄʜ", callback_data="find_partner")]
+        ])
+    )
+    await callback.answer()
+
+@Client.on_callback_query(filters.regex("targeted_search"))
+async def targeted_search(bot, callback: CallbackQuery):
+    search_keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton("🎂 ʙʏ ᴀɢᴇ", callback_data="search_age"),
+         InlineKeyboardButton("📍 ʙʏ ʟᴏᴄᴀᴛɪᴏɴ", callback_data="search_location")],
+        [InlineKeyboardButton("🎯 ʙʏ ɪɴᴛᴇʀᴇsᴛs", callback_data="search_interests"),
+         InlineKeyboardButton("💎 ᴘʀᴇᴍɪᴜᴍ ᴏɴʟʏ", callback_data="search_premium")]
+    ])
+    
+    await callback.message.edit_text(
+        format_reply("🎯 ᴛᴀʀɢᴇᴛᴇᴅ sᴇᴀʀᴄʜ 🎯\n\nᴄʜᴏᴏsᴇ ʏᴏᴜʀ sᴇᴀʀᴄʜ ᴄʀɪᴛᴇʀɪᴀ:"),
+        reply_markup=search_keyboard
+    )
+    await callback.answer()
+
+@Client.on_callback_query(filters.regex("vip_chats"))
+async def vip_chats(bot, callback: CallbackQuery):
+    await callback.message.edit_text(
+        format_reply("👑 ᴠɪᴘ ᴄʜᴀᴛ ʀᴏᴏᴍs 👑\n\n🌟 ᴇxᴄʟᴜsɪᴠᴇ ᴀᴄᴄᴇss ᴛᴏ ᴘʀᴇᴍɪᴜᴍ ᴍᴇᴍʙᴇʀs\n💎 ʜɪɢʜ-ǫᴜᴀʟɪᴛʏ ᴄᴏɴᴠᴇʀsᴀᴛɪᴏɴs\n✨ ᴠᴇʀɪғɪᴇᴅ ᴜsᴇʀs ᴏɴʟʏ"),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("💬 ᴊᴏɪɴ ᴠɪᴘ ᴄʜᴀᴛ", callback_data="join_vip_chat")]
+        ])
+    )
+    await callback.answer()
+
+@Client.on_callback_query(filters.regex("private_messages"))
+async def private_messages(bot, callback: CallbackQuery):
+    await callback.message.edit_text(
+        format_reply("💌 ᴘʀɪᴠᴀᴛᴇ ᴍᴇssᴀɢɪɴɢ 💌\n\n📨 sᴇɴᴅ ᴅɪʀᴇᴄᴛ ᴍᴇssᴀɢᴇs\n🔒 ᴇɴᴄʀʏᴘᴛᴇᴅ ᴄʜᴀᴛs\n👀 ʀᴇᴀᴅ ʀᴇᴄᴇɪᴘᴛs"),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("💌 sᴇɴᴅ ᴍᴇssᴀɢᴇ", callback_data="send_private_msg")]
+        ])
+    )
+    await callback.answer()
+
+@Client.on_callback_query(filters.regex("exclusive_club"))
+async def exclusive_club(bot, callback: CallbackQuery):
+    await callback.message.edit_text(
+        format_reply("🏆 ᴇxᴄʟᴜsɪᴠᴇ ᴄʟᴜʙ 🏆\n\n👑 ᴇʟɪᴛᴇ ᴍᴇᴍʙᴇʀs ᴏɴʟʏ\n💎 sᴘᴇᴄɪᴀʟ ᴇᴠᴇɴᴛs\n🌟 ᴘʀɪᴠᴀᴛᴇ ɢᴀᴛʜᴇʀɪɴɢs"),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("🚪 ᴇɴᴛᴇʀ ᴄʟᴜʙ", callback_data="enter_club")]
+        ])
+    )
+    await callback.answer()
+
+@Client.on_callback_query(filters.regex("invite_friends"))
+async def invite_friends(bot, callback: CallbackQuery):
+    user_id = callback.from_user.id
+    invite_link = f"https://t.me/YourBotUsername?start={user_id}"
+    
+    await callback.message.edit_text(
+        format_reply(f"👥 ɪɴᴠɪᴛᴇ ғʀɪᴇɴᴅs 👥\n\n🎁 ᴇᴀʀɴ 5 ᴄᴏɪɴs ᴘᴇʀ ʀᴇғᴇʀʀᴀʟ!\n\nʏᴏᴜʀ ɪɴᴠɪᴛᴇ ʟɪɴᴋ:\n{invite_link}"),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("📱 sʜᴀʀᴇ ʟɪɴᴋ", url=f"https://t.me/share/url?url={invite_link}")]
+        ])
+    )
+    await callback.answer()
+
+@Client.on_callback_query(filters.regex("play_for_coins"))
+async def play_for_coins(bot, callback: CallbackQuery):
+    await callback.message.edit_text(
+        format_reply("🎮 ᴘʟᴀʏ & ᴇᴀʀɴ 🎮\n\n🎯 ᴘʟᴀʏ ɢᴀᴍᴇs ᴛᴏ ᴇᴀʀɴ ᴄᴏɪɴs!\n💰 ᴜᴘ ᴛᴏ 50 ᴄᴏɪɴs ᴘᴇʀ ɢᴀᴍᴇ!"),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("🎮 sᴛᴀʀᴛ ɢᴀᴍɪɴɢ", callback_data="mini_games")]
+        ])
+    )
+    await callback.answer()
+
+@Client.on_callback_query(filters.regex("daily_tasks"))
+async def daily_tasks(bot, callback: CallbackQuery):
+    await callback.message.edit_text(
+        format_reply("📝 ᴅᴀɪʟʏ ᴛᴀsᴋs 📝\n\n✅ sᴇɴᴅ 5 ᴍᴇssᴀɢᴇs: +10 ᴄᴏɪɴs\n✅ ᴍᴀᴋᴇ 1 ᴍᴀᴛᴄʜ: +20 ᴄᴏɪɴs\n✅ ᴘʟᴀʏ 3 ɢᴀᴍᴇs: +15 ᴄᴏɪɴs"),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("🎯 sᴛᴀʀᴛ ᴛᴀsᴋs", callback_data="daily_challenges")]
+        ])
+    )
+    await callback.answer()
+
+@Client.on_callback_query(filters.regex("watch_ads"))
+async def watch_ads(bot, callback: CallbackQuery):
+    # Simulate ad watching
+    coins_earned = random.randint(5, 15)
+    users.update_one(
+        {"_id": callback.from_user.id},
+        {"$inc": {"coins": coins_earned}}
+    )
+    
+    await callback.message.edit_text(
+        format_reply(f"📺 ᴀᴅ ᴡᴀᴛᴄʜᴇᴅ! 📺\n\nᴇᴀʀɴᴇᴅ: {coins_earned} ᴄᴏɪɴs! 💰\n\nᴛʜᴀɴᴋ ʏᴏᴜ ғᴏʀ sᴜᴘᴘᴏʀᴛɪɴɢ ᴜs! ❤️"),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("📺 ᴡᴀᴛᴄʜ ᴀɴᴏᴛʜᴇʀ", callback_data="watch_ads"),
+             InlineKeyboardButton("💰 ᴠɪᴇᴡ ᴄᴏɪɴs", callback_data="view_profile")]
+        ])
+    )
+    await callback.answer()
+
+@Client.on_callback_query(filters.regex("buy_coins"))
+async def buy_coins(bot, callback: CallbackQuery):
+    coin_packages = InlineKeyboardMarkup([
+        [InlineKeyboardButton("💰 100 ᴄᴏɪɴs - $1", callback_data="buy_package_100"),
+         InlineKeyboardButton("💰 500 ᴄᴏɪɴs - $4", callback_data="buy_package_500")],
+        [InlineKeyboardButton("💰 1000 ᴄᴏɪɴs - $7", callback_data="buy_package_1000"),
+         InlineKeyboardButton("💰 2500 ᴄᴏɪɴs - $15", callback_data="buy_package_2500")]
+    ])
+    
+    await callback.message.edit_text(
+        format_reply("💰 ᴄᴏɪɴ ᴘᴀᴄᴋᴀɢᴇs 💰\n\nᴄʜᴏᴏsᴇ ʏᴏᴜʀ ᴘᴀᴄᴋᴀɢᴇ:"),
+        reply_markup=coin_packages
+    )
+    await callback.answer()
+
+@Client.on_callback_query(filters.regex("compat_"))
+async def handle_compatibility_answers(bot, callback: CallbackQuery):
+    answer = callback.data.split("_")[1]
+    
+    # Update user's compatibility preferences
+    users.update_one(
+        {"_id": callback.from_user.id},
+        {"$set": {"compatibility_preference": answer}}
+    )
+    
+    compatibility_score = random.randint(70, 95)
+    
+    await callback.message.edit_text(
+        format_reply(f"💕 ᴄᴏᴍᴘᴀᴛɪʙɪʟɪᴛʏ ʀᴇsᴜʟᴛ 💕\n\nʏᴏᴜʀ ᴄʜᴏɪᴄᴇ: {answer}\n\nᴄᴏᴍᴘᴀᴛɪʙɪʟɪᴛʏ sᴄᴏʀᴇ: {compatibility_score}%! 🎯"),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("🔍 ғɪɴᴅ ᴄᴏᴍᴘᴀᴛɪʙʟᴇ ᴍᴀᴛᴄʜ", callback_data="find_partner")]
+        ])
+    )
+    await callback.answer()
+
+@Client.on_callback_query(filters.regex("share_love_letter"))
+async def share_love_letter(bot, callback: CallbackQuery):
+    await callback.message.edit_text(
+        format_reply("💌 ʟᴏᴠᴇ ʟᴇᴛᴛᴇʀ sʜᴀʀᴇᴅ! 💌\n\nsᴏᴍᴇᴏɴᴇ sᴘᴇᴄɪᴀʟ ᴡɪʟʟ ʀᴇᴄᴇɪᴠᴇ ʏᴏᴜʀ ʜᴇᴀʀᴛғᴇʟᴛ ᴍᴇssᴀɢᴇ! ✨"),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("💕 sᴇɴᴅ ᴀɴᴏᴛʜᴇʀ", callback_data="love_letters")]
+        ])
+    )
+    await callback.answer()
+
+@Client.on_callback_query(filters.regex("write_custom_letter"))
+async def write_custom_letter(bot, callback: CallbackQuery):
+    await callback.message.edit_text(
+        format_reply("✍️ ᴡʀɪᴛᴇ ᴄᴜsᴛᴏᴍ ʟᴇᴛᴛᴇʀ ✍️\n\nᴛʏᴘᴇ ʏᴏᴜʀ ʜᴇᴀʀᴛғᴇʟᴛ ᴍᴇssᴀɢᴇ ᴀɴᴅ ɪ'ʟʟ ᴍᴀᴋᴇ ɪᴛ ʙᴇᴀᴜᴛɪғᴜʟ! 💕"),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data="love_letters")]
+        ])
+    )
+    await callback.answer()
+
 @Client.on_callback_query(filters.regex("love_letters"))
 async def love_letters_feature(bot, callback: CallbackQuery):
     love_quotes = [

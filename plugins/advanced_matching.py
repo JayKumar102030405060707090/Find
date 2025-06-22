@@ -172,6 +172,136 @@ async def astrology_matching(bot, callback: CallbackQuery):
     )
     await callback.answer()
 
+@Client.on_callback_query(filters.regex("zodiac_"))
+async def handle_zodiac_selection(bot, callback: CallbackQuery):
+    zodiac_idx = int(callback.data.split("_")[1])
+    zodiac_signs = [
+        "♈ ᴀʀɪᴇs", "♉ ᴛᴀᴜʀᴜs", "♊ ɢᴇᴍɪɴɪ", "♋ ᴄᴀɴᴄᴇʀ",
+        "♌ ʟᴇᴏ", "♍ ᴠɪʀɢᴏ", "♎ ʟɪʙʀᴀ", "♏ sᴄᴏʀᴘɪᴏ",
+        "♐ sᴀɢɪᴛᴛᴀʀɪᴜs", "♑ ᴄᴀᴘʀɪᴄᴏʀɴ", "♒ ᴀǫᴜᴀʀɪᴜs", "♓ ᴘɪsᴄᴇs"
+    ]
+    
+    selected_sign = zodiac_signs[zodiac_idx]
+    
+    # Update user's zodiac sign
+    users.update_one(
+        {"_id": callback.from_user.id},
+        {"$set": {"zodiac_sign": selected_sign}}
+    )
+    
+    # Find compatible matches
+    compatible_matches = [
+        "ʏᴏᴜʀ ᴘᴇʀғᴇᴄᴛ ᴍᴀᴛᴄʜ ɪs ᴡᴀɪᴛɪɴɢ! 💫",
+        "ᴀsᴛʀᴏʟᴏɢɪᴄᴀʟ ᴀʟɪɢɴᴍᴇɴᴛ sʜᴏᴡs ɢʀᴇᴀᴛ ᴄᴏᴍᴘᴀᴛɪʙɪʟɪᴛʏ! ✨",
+        "ᴛʜᴇ sᴛᴀʀs ᴀʀᴇ ᴀʟɪɢɴɪɴɢ ғᴏʀ ʏᴏᴜʀ ʟᴏᴠᴇ sᴛᴏʀʏ! 🌟"
+    ]
+    
+    result = random.choice(compatible_matches)
+    
+    await callback.message.edit_text(
+        format_reply(f"✨ ᴀsᴛʀᴏʟᴏɢɪᴄᴀʟ ᴍᴀᴛᴄʜɪɴɢ ✨\n\n{selected_sign} sᴇʟᴇᴄᴛᴇᴅ!\n\n{result}"),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("🔍 ғɪɴᴅ ᴍᴀᴛᴄʜ", callback_data="find_partner"),
+             InlineKeyboardButton("🔮 ᴀɴᴏᴛʜᴇʀ ʀᴇᴀᴅɪɴɢ", callback_data="astrology_match")]
+        ])
+    )
+    await callback.answer()
+
+@Client.on_callback_query(filters.regex("psychic_reading"))
+async def psychic_reading(bot, callback: CallbackQuery):
+    readings = [
+        "ɪ sᴇᴇ ᴀ ᴅᴀʀᴋ ᴀɴᴅ ʜᴀɴᴅsᴏᴍᴇ sᴛʀᴀɴɢᴇʀ ɪɴ ʏᴏᴜʀ ғᴜᴛᴜʀᴇ... 🔮",
+        "ʏᴏᴜʀ ᴀᴜʀᴀ ɪs ɢʟᴏᴡɪɴɢ ᴡɪᴛʜ ʟᴏᴠᴇ ᴇɴᴇʀɢʏ! 💫",
+        "ᴛʜᴇ sᴘɪʀɪᴛs ᴀʀᴇ ᴛᴇʟʟɪɴɢ ᴍᴇ... ʏᴏᴜʀ sᴏᴜʟᴍᴀᴛᴇ ɪs ᴠᴇʀʏ ᴄʟᴏsᴇ! 👻💕"
+    ]
+    
+    reading = random.choice(readings)
+    
+    await callback.message.edit_text(
+        format_reply(f"🔮 ᴘsʏᴄʜɪᴄ ʀᴇᴀᴅɪɴɢ 🔮\n\n{reading}"),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("🔮 ᴀɴᴏᴛʜᴇʀ ʀᴇᴀᴅɪɴɢ", callback_data="psychic_reading"),
+             InlineKeyboardButton("💕 ғɪɴᴅ ʟᴏᴠᴇ", callback_data="find_partner")]
+        ])
+    )
+    await callback.answer()
+
+@Client.on_callback_query(filters.regex("dream_analysis"))
+async def dream_analysis(bot, callback: CallbackQuery):
+    dream_meanings = [
+        "ᴅʀᴇᴀᴍɪɴɢ ᴏғ ғʟᴏᴡᴇʀs ᴍᴇᴀɴs ɴᴇᴡ ʟᴏᴠᴇ ɪs ʙʟᴏᴏᴍɪɴɢ! 🌸",
+        "ғʟʏɪɴɢ ɪɴ ᴅʀᴇᴀᴍs sʏᴍʙᴏʟɪᴢᴇs ғʀᴇᴇᴅᴏᴍ ᴛᴏ ʟᴏᴠᴇ! 🕊️",
+        "ᴡᴀᴛᴇʀ ɪɴ ᴅʀᴇᴀᴍs ʀᴇᴘʀᴇsᴇɴᴛs ᴇᴍᴏᴛɪᴏɴᴀʟ ᴄᴏɴɴᴇᴄᴛɪᴏɴ! 🌊"
+    ]
+    
+    analysis = random.choice(dream_meanings)
+    
+    await callback.message.edit_text(
+        format_reply(f"💭 ᴅʀᴇᴀᴍ ᴀɴᴀʟʏsɪs 💭\n\n{analysis}"),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("💭 ᴀɴᴏᴛʜᴇʀ ᴀɴᴀʟʏsɪs", callback_data="dream_analysis"),
+             InlineKeyboardButton("🌙 sʟᴇᴇᴘ ᴍᴀɢɪᴄ", callback_data="sleep_magic")]
+        ])
+    )
+    await callback.answer()
+
+@Client.on_callback_query(filters.regex("destiny_match"))
+async def destiny_match(bot, callback: CallbackQuery):
+    destiny_messages = [
+        "ᴅᴇsᴛɪɴʏ ʜᴀs ᴀʟʀᴇᴀᴅʏ ᴡʀɪᴛᴛᴇɴ ʏᴏᴜʀ ʟᴏᴠᴇ sᴛᴏʀʏ! 📖✨",
+        "ғᴀᴛᴇ ɪs ᴡᴏʀᴋɪɴɢ ᴛᴏ ʙʀɪɴɢ ʏᴏᴜ ᴛᴏɢᴇᴛʜᴇʀ! 🌟",
+        "ʏᴏᴜʀ ᴅᴇsᴛɪɴʏ ɪs ɪɴᴛᴇʀᴛᴡɪɴᴇᴅ ᴡɪᴛʜ sᴏᴍᴇᴏɴᴇ sᴘᴇᴄɪᴀʟ! 💫"
+    ]
+    
+    message = random.choice(destiny_messages)
+    
+    await callback.message.edit_text(
+        format_reply(f"🌟 ᴅᴇsᴛɪɴʏ ᴍᴀᴛᴄʜ 🌟\n\n{message}"),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("🔍 ғɪɴᴅ ᴍʏ ᴅᴇsᴛɪɴʏ", callback_data="find_partner"),
+             InlineKeyboardButton("🎯 ᴅᴇsᴛɪɴʏ ᴛᴇsᴛ", callback_data="destiny_test")]
+        ])
+    )
+    await callback.answer()
+
+@Client.on_callback_query(filters.regex("soul_connection"))
+async def soul_connection(bot, callback: CallbackQuery):
+    connection_levels = [
+        "ʏᴏᴜʀ sᴏᴜʟ ɪs ʀᴇᴀᴅʏ ғᴏʀ ᴅᴇᴇᴘ ᴄᴏɴɴᴇᴄᴛɪᴏɴ! 💫",
+        "ɪ ғᴇᴇʟ ᴀ sᴛʀᴏɴɢ sᴘɪʀɪᴛᴜᴀʟ ᴇɴᴇʀɢʏ ᴀʀᴏᴜɴᴅ ʏᴏᴜ! ✨",
+        "ʏᴏᴜʀ sᴏᴜʟ ɪs ᴄᴀʟʟɪɴɢ ᴏᴜᴛ ᴛᴏ ɪᴛs ᴛᴡɪɴ! 👥💕"
+    ]
+    
+    connection = random.choice(connection_levels)
+    
+    await callback.message.edit_text(
+        format_reply(f"💝 sᴏᴜʟ ᴄᴏɴɴᴇᴄᴛɪᴏɴ 💝\n\n{connection}"),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("🔗 ᴄᴏɴɴᴇᴄᴛ ɴᴏᴡ", callback_data="find_partner"),
+             InlineKeyboardButton("💫 sᴏᴜʟ ᴛᴇsᴛ", callback_data="soul_test")]
+        ])
+    )
+    await callback.answer()
+
+@Client.on_callback_query(filters.regex("past_life"))
+async def past_life_reading(bot, callback: CallbackQuery):
+    past_lives = [
+        "ɪɴ ʏᴏᴜʀ ᴘᴀsᴛ ʟɪғᴇ, ʏᴏᴜ ᴡᴇʀᴇ ᴀ ᴘʀɪɴᴄᴇss! 👸✨",
+        "ʏᴏᴜ ᴡᴇʀᴇ ᴀ ᴘᴏᴇᴛ ᴡʜᴏ ᴡʀᴏᴛᴇ ʟᴏᴠᴇ sᴏɴɴᴇᴛs! 📝💕",
+        "ɪɴ ᴀɴᴏᴛʜᴇʀ ʟɪғᴇ, ʏᴏᴜ ᴡᴇʀᴇ ᴀ ᴅᴀɴᴄᴇʀ ᴜɴᴅᴇʀ ᴛʜᴇ sᴛᴀʀs! 💃🌟"
+    ]
+    
+    past_life = random.choice(past_lives)
+    
+    await callback.message.edit_text(
+        format_reply(f"🎭 ᴘᴀsᴛ ʟɪғᴇ ʀᴇᴀᴅɪɴɢ 🎭\n\n{past_life}"),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("🔄 ᴀɴᴏᴛʜᴇʀ ʟɪғᴇ", callback_data="past_life"),
+             InlineKeyboardButton("💕 ғɪɴᴅ ᴘᴀsᴛ ʟᴏᴠᴇ", callback_data="find_partner")]
+        ])
+    )
+    await callback.answer()
+
 @Client.on_callback_query(filters.regex("love_predictions"))
 async def love_predictions_system(bot, callback: CallbackQuery):
     predictions = [

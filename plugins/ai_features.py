@@ -1,4 +1,3 @@
-
 from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from config import *
@@ -59,7 +58,7 @@ async def ai_personality_selector(bot, callback: CallbackQuery):
         [InlineKeyboardButton("🌊 ᴅᴇᴇᴘ ᴀɪ", callback_data="set_ai_deep"),
          InlineKeyboardButton("🎭 sᴜʀᴘʀɪsᴇ ᴍᴇ", callback_data="set_ai_random")]
     ])
-    
+
     await callback.message.edit_text(
         format_reply("ᴄʜᴏᴏsᴇ ʏᴏᴜʀ ᴀɪ ᴘᴀʀᴛɴᴇʀ's ᴘᴇʀsᴏɴᴀʟɪᴛʏ! 🤖💕"),
         reply_markup=personality_keyboard
@@ -70,16 +69,16 @@ async def ai_personality_selector(bot, callback: CallbackQuery):
 async def set_ai_personality(bot, callback: CallbackQuery):
     personality = callback.data.split("_")[2]
     user_id = callback.from_user.id
-    
+
     if personality == "random":
         personality = random.choice(list(PERSONALITY_TYPES.keys()))
-    
+
     users.update_one(
         {"_id": user_id},
         {"$set": {"ai_personality": personality}},
         upsert=True
     )
-    
+
     await callback.message.edit_text(
         format_reply(f"ᴘᴇʀғᴇᴄᴛ! ʏᴏᴜʀ ᴀɪ ɪs ɴᴏᴡ {personality}! ✨\nʟᴇᴛ's sᴛᴀʀᴛ ᴄʜᴀᴛᴛɪɴɢ! 💕"),
         reply_markup=InlineKeyboardMarkup([
@@ -100,7 +99,7 @@ async def advanced_features_menu(bot, callback: CallbackQuery):
         [InlineKeyboardButton("🔮 ᴍᴏᴏᴅ ᴀɴᴀʟʏᴢᴇʀ", callback_data="mood_analyzer"),
          InlineKeyboardButton("🎪 ɪɴᴛᴇʀᴀᴄᴛɪᴠᴇ sᴛᴏʀɪᴇs", callback_data="interactive_stories")]
     ])
-    
+
     await callback.message.edit_text(
         format_reply("ᴇxᴘʟᴏʀᴇ ᴀᴅᴠᴀɴᴄᴇᴅ ғᴇᴀᴛᴜʀᴇs! 🚀✨"),
         reply_markup=features_keyboard
@@ -120,12 +119,12 @@ async def start_personality_test(bot, callback: CallbackQuery):
             ]
         }
     ]
-    
+
     test_keyboard = InlineKeyboardMarkup([
         [InlineKeyboardButton(opt["text"], callback_data=f"test_answer:{idx}:{qidx}")]
         for idx, opt in enumerate(questions[0]["options"])
     ])
-    
+
     await callback.message.edit_text(
         format_reply(f"🧠 ᴘᴇʀsᴏɴᴀʟɪᴛʏ ᴛᴇsᴛ sᴛᴀʀᴛᴇᴅ!\n\n{questions[0]['question']}"),
         reply_markup=test_keyboard
@@ -142,7 +141,7 @@ async def virtual_dates_menu(bot, callback: CallbackQuery):
         [InlineKeyboardButton("🎭 ᴛʜᴇᴀᴛᴇʀ sʜᴏᴡ", callback_data="vdate_theater"),
          InlineKeyboardButton("🎨 ᴀʀᴛ sᴛᴜᴅɪᴏ", callback_data="vdate_art")]
     ])
-    
+
     await callback.message.edit_text(
         format_reply("ᴄʜᴏᴏsᴇ ʏᴏᴜʀ ᴠɪʀᴛᴜᴀʟ ᴅᴀᴛᴇ ʟᴏᴄᴀᴛɪᴏɴ! 💕✨"),
         reply_markup=dates_keyboard
@@ -152,22 +151,22 @@ async def virtual_dates_menu(bot, callback: CallbackQuery):
 @Client.on_callback_query(filters.regex("vdate_"))
 async def virtual_date_experience(bot, callback: CallbackQuery):
     location = callback.data.split("_")[1]
-    
+
     date_scenarios = {
         "beach": "🏖️ ʏᴏᴜ'ʀᴇ ᴡᴀʟᴋɪɴɢ ᴏɴ ᴀ ʙᴇᴀᴜᴛɪғᴜʟ ʙᴇᴀᴄʜ... 🌅\nᴛʜᴇ sᴜɴ ɪs sᴇᴛᴛɪɴɢ, ᴄʀᴇᴀᴛɪɴɢ ᴀ ᴍᴀɢɪᴄᴀʟ ᴀᴛᴍᴏsᴘʜᴇʀᴇ...",
         "city": "🌃 ʏᴏᴜ'ʀᴇ ᴏɴ ᴀ ʀᴏᴏғᴛᴏᴘ ᴏᴠᴇʀʟᴏᴏᴋɪɴɢ ᴛʜᴇ ᴄɪᴛʏ... ✨\nᴛʜᴇ ʟɪɢʜᴛs ᴀʀᴇ sᴘᴀʀᴋʟɪɴɢ ʟɪᴋᴇ sᴛᴀʀs...",
         "mountain": "🏔️ ʏᴏᴜ'ʀᴇ ᴏɴ ᴀ ᴍᴏᴜɴᴛᴀɪɴ ᴘᴇᴀᴋ... 🌄\nᴛʜᴇ ᴠɪᴇᴡ ɪs ʙʀᴇᴀᴛʜᴛᴀᴋɪɴɢ, ᴊᴜsᴛ ʟɪᴋᴇ ʏᴏᴜ..."
     }
-    
+
     scenario = date_scenarios.get(location, "✨ ᴀ ᴍᴀɢɪᴄᴀʟ ᴘʟᴀᴄᴇ ᴊᴜsᴛ ғᴏʀ ᴜs...")
-    
+
     date_keyboard = InlineKeyboardMarkup([
         [InlineKeyboardButton("💕 ʜᴏʟᴅ ʜᴀɴᴅs", callback_data="date_action_hold"),
          InlineKeyboardButton("💋 ᴋɪss", callback_data="date_action_kiss")],
         [InlineKeyboardButton("🌹 ɢɪᴠᴇ ғʟᴏᴡᴇʀ", callback_data="date_action_flower"),
          InlineKeyboardButton("💬 sᴡᴇᴇᴛ ᴛᴀʟᴋ", callback_data="date_action_talk")]
     ])
-    
+
     await callback.message.edit_text(
         format_reply(f"{scenario}\n\nᴡʜᴀᴛ ᴡᴏᴜʟᴅ ʏᴏᴜ ʟɪᴋᴇ ᴛᴏ ᴅᴏ?"),
         reply_markup=date_keyboard
@@ -184,7 +183,7 @@ async def mood_analyzer(bot, callback: CallbackQuery):
         [InlineKeyboardButton("🤔 ᴛʜɪɴᴋɪɴɢ", callback_data="mood_thinking"),
          InlineKeyboardButton("🎉 ᴇxᴄɪᴛᴇᴅ", callback_data="mood_excited")]
     ])
-    
+
     await callback.message.edit_text(
         format_reply("ʜᴏᴡ ᴀʀᴇ ʏᴏᴜ ғᴇᴇʟɪɴɢ ᴛᴏᴅᴀʏ? 🔮💕"),
         reply_markup=mood_keyboard
@@ -194,26 +193,148 @@ async def mood_analyzer(bot, callback: CallbackQuery):
 @Client.on_callback_query(filters.regex("mood_"))
 async def analyze_mood(bot, callback: CallbackQuery):
     mood = callback.data.split("_")[1]
-    
+
     mood_responses = {
-        "happy": "ʏᴏᴜʀ ʜᴀᴘᴘɪɴᴇss ɪs ᴄᴏɴᴛᴀɢɪᴏᴜs! 😊✨ ʟᴇᴛ's sᴘʀᴇᴀᴅ ᴛʜᴇ ᴊᴏʏ!",
+        "happy": "ʏᴏᴜʀ ʜᴀᴘᴘɪɴᴇss ɪs ᴄᴏɴᴛᴀɢɪᴏᴜs! 😊✨ ʟᴇᴛ's sᴘʀᴇᴀᴅ ᴊᴏʏ!",
         "sad": "ɪ'ᴍ ʜᴇʀᴇ ғᴏʀ ʏᴏᴜ! 💙 ʟᴇᴛ ᴍᴇ ᴍᴀᴋᴇ ʏᴏᴜ sᴍɪʟᴇ ᴀɢᴀɪɴ!",
         "loving": "ʏᴏᴜʀ ʟᴏᴠɪɴɢ ᴇɴᴇʀɢʏ ɪs ʙᴇᴀᴜᴛɪғᴜʟ! 💕 sᴏᴍᴇᴏɴᴇ ɪs ʟᴜᴄᴋʏ!",
         "tired": "ʀᴇsᴛ ɪs ɪᴍᴘᴏʀᴛᴀɴᴛ! 😴 ʟᴇᴛ ᴍᴇ ʀᴇʟᴀx ʏᴏᴜ ᴡɪᴛʜ sᴏᴍᴇ ɢᴇɴᴛʟᴇ ᴄʜᴀᴛ...",
         "thinking": "ʏᴏᴜʀ ᴍɪɴᴅ ɪs sᴏ ᴀᴄᴛɪᴠᴇ! 🤔💭 ᴡʜᴀᴛ's ᴏɴ ʏᴏᴜʀ ᴍɪɴᴅ?",
         "excited": "ʏᴏᴜʀ ᴇxᴄɪᴛᴇᴍᴇɴᴛ ɪs ᴇʟᴇᴄᴛʀɪғʏɪɴɢ! 🎉⚡ ʟᴇᴛ's ᴄᴇʟᴇʙʀᴀᴛᴇ!"
     }
-    
+
     response = mood_responses.get(mood, "ʏᴏᴜʀ ᴇᴍᴏᴛɪᴏɴs ᴀʀᴇ ᴠᴀʟɪᴅ! 💫")
-    
+
     suggestion_keyboard = InlineKeyboardMarkup([
         [InlineKeyboardButton("🎮 ᴘʟᴀʏ ɢᴀᴍᴇ", callback_data="inline_games"),
          InlineKeyboardButton("💬 ᴄʜᴀᴛ ᴡɪᴛʜ ᴀɪ", callback_data="ai_chat")],
         [InlineKeyboardButton("🔍 ғɪɴᴅ sᴏᴍᴇᴏɴᴇ", callback_data="find_partner")]
     ])
-    
+
     await callback.message.edit_text(
         format_reply(response),
         reply_markup=suggestion_keyboard
+    )
+    await callback.answer()
+
+@Client.on_callback_query(filters.regex("test_answer"))
+async def handle_test_answers(bot, callback: CallbackQuery):
+    answer_data = callback.data.split(":")
+    answer_idx = int(answer_data[1])
+    question_idx = int(answer_data[2])
+
+    # Simple personality scoring
+    personality_scores = {"romantic": 0, "adventurous": 0, "intellectual": 0, "casual": 0}
+
+    if answer_idx == 0:
+        personality_scores["romantic"] += 3
+    elif answer_idx == 1:
+        personality_scores["adventurous"] += 3
+    elif answer_idx == 2:
+        personality_scores["casual"] += 3
+    else:
+        personality_scores["intellectual"] += 3
+
+    # Determine personality type
+    dominant_trait = max(personality_scores, key=personality_scores.get)
+
+    # Update user personality
+    users.update_one(
+        {"_id": callback.from_user.id},
+        {"$set": {"personality_type": dominant_trait}}
+    )
+
+    personality_descriptions = {
+        "romantic": "💕 ʏᴏᴜ'ʀᴇ ᴀ ʜᴏᴘᴇʟᴇss ʀᴏᴍᴀɴᴛɪᴄ! ʏᴏᴜ ʟᴏᴠᴇ ᴄᴀɴᴅʟᴇʟɪᴛ ᴅɪɴɴᴇʀs ᴀɴᴅ sᴜɴsᴇᴛ ᴡᴀʟᴋs!",
+        "adventurous": "🎢 ʏᴏᴜ'ʀᴇ ᴀɴ ᴀᴅᴠᴇɴᴛᴜʀᴏᴜs sᴏᴜʟ! ʏᴏᴜ ʟᴏᴠᴇ ᴇxᴄɪᴛᴇᴍᴇɴᴛ ᴀɴᴅ ɴᴇᴡ ᴇxᴘᴇʀɪᴇɴᴄᴇs!",
+        "intellectual": "🧠 ʏᴏᴜ'ʀᴇ ᴀɴ ɪɴᴛᴇʟʟᴇᴄᴛᴜᴀʟ! ʏᴏᴜ ʟᴏᴠᴇ ᴅᴇᴇᴘ ᴄᴏɴᴠᴇʀsᴀᴛɪᴏɴs ᴀɴᴅ ᴄᴜʟᴛᴜʀᴀʟ ᴇxᴘᴇʀɪᴇɴᴄᴇs!",
+        "casual": "😊 ʏᴏᴜ'ʀᴇ ʟᴀɪᴅ-ʙᴀᴄᴋ ᴀɴᴅ ᴇᴀsʏ-ɢᴏɪɴɢ! ʏᴏᴜ ᴘʀᴇғᴇʀ sɪᴍᴘʟᴇ ᴀɴᴅ ᴄᴏᴍғᴏʀᴛᴀʙʟᴇ sᴇᴛᴛɪɴɢs!"
+    }
+
+    result = personality_descriptions.get(dominant_trait, "ʏᴏᴜ'ʀᴇ ᴜɴɪǫᴜᴇ!")
+
+    await callback.message.edit_text(
+        format_reply(f"🧠 ᴘᴇʀsᴏɴᴀʟɪᴛʏ ʀᴇsᴜʟᴛ 🧠\n\n{result}\n\nʏᴏᴜʀ ᴛʏᴘᴇ: {dominant_trait.upper()} ✨"),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("🔍 ғɪɴᴅ ᴄᴏᴍᴘᴀᴛɪʙʟᴇ ᴍᴀᴛᴄʜ", callback_data="find_partner"),
+             InlineKeyboardButton("🔄 ʀᴇᴛᴀᴋᴇ ᴛᴇsᴛ", callback_data="personality_test")]
+        ])
+    )
+    await callback.answer()
+
+@Client.on_callback_query(filters.regex("date_action_"))
+async def handle_date_actions(bot, callback: CallbackQuery):
+    action = callback.data.split("_")[2]
+
+    action_responses = {
+        "hold": "💕 ʏᴏᴜ ɢᴇɴᴛʟʏ ᴛᴀᴋᴇ ᴛʜᴇɪʀ ʜᴀɴᴅ... ᴛʜᴇɪʀ ᴇʏᴇs sᴘᴀʀᴋʟᴇ! ✨",
+        "kiss": "💋 ᴀ sᴏғᴛ, ᴍᴀɢɪᴄᴀʟ ᴋɪss... ᴛɪᴍᴇ sᴛᴀɴᴅs sᴛɪʟʟ! 🌟",
+        "flower": "🌹 ʏᴏᴜ ᴘʀᴇsᴇɴᴛ ᴀ ʙᴇᴀᴜᴛɪғᴜʟ ʀᴏsᴇ... ᴛʜᴇʏ ʙʟᴜsʜ! 😊",
+        "talk": "💬 ʏᴏᴜʀ sᴡᴇᴇᴛ ᴡᴏʀᴅs ᴍᴇʟᴛ ᴛʜᴇɪʀ ʜᴇᴀʀᴛ... 💖"
+    }
+
+    response = action_responses.get(action, "✨ ᴀ ᴍᴀɢɪᴄᴀʟ ᴍᴏᴍᴇɴᴛ!")
+
+    await callback.message.edit_text(
+        format_reply(f"💕 ᴠɪʀᴛᴜᴀʟ ᴅᴀᴛᴇ 💕\n\n{response}"),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("🌹 ᴀɴᴏᴛʜᴇʀ ᴀᴄᴛɪᴏɴ", callback_data="date_action_flower"),
+             InlineKeyboardButton("💕 ɴᴇᴡ ᴅᴀᴛᴇ", callback_data="virtual_dates")],
+            [InlineKeyboardButton("🔍 ғɪɴᴅ ʀᴇᴀʟ ᴅᴀᴛᴇ", callback_data="find_partner")]
+        ])
+    )
+    await callback.answer()
+
+@Client.on_callback_query(filters.regex("interactive_stories"))
+async def interactive_stories(bot, callback: CallbackQuery):
+    stories = [
+        {
+            "title": "🏰 ᴇɴᴄʜᴀɴᴛᴇᴅ ᴄᴀsᴛʟᴇ",
+            "description": "ʏᴏᴜ ғɪɴᴅ ᴀ ᴍʏsᴛᴇʀɪᴏᴜs ᴄᴀsᴛʟᴇ...",
+            "callback": "story_castle"
+        },
+        {
+            "title": "🌊 ᴍᴇʀᴍᴀɪᴅ ʟᴀɢᴏᴏɴ",
+            "description": "ᴅɪᴠɪɴɢ ᴅᴇᴇᴘ ɪɴᴛᴏ ᴛʜᴇ ᴏᴄᴇᴀɴ...",
+            "callback": "story_mermaid"
+        },
+        {
+            "title": "🚀 sᴘᴀᴄᴇ ʀᴏᴍᴀɴᴄᴇ",
+            "description": "ᴀ ʟᴏᴠᴇ sᴛᴏʀʏ ᴀᴍᴏɴɢ ᴛʜᴇ sᴛᴀʀs...",
+            "callback": "story_space"
+        }
+    ]
+
+    story_keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton(f"{story['title']}", callback_data=story['callback'])]
+        for story in stories
+    ])
+
+    await callback.message.edit_text(
+        format_reply("📚 ɪɴᴛᴇʀᴀᴄᴛɪᴠᴇ sᴛᴏʀɪᴇs 📚\n\nᴄʜᴏᴏsᴇ ʏᴏᴜʀ ᴀᴅᴠᴇɴᴛᴜʀᴇ! ✨"),
+        reply_markup=story_keyboard
+    )
+    await callback.answer()
+
+@Client.on_callback_query(filters.regex("story_"))
+async def start_story(bot, callback: CallbackQuery):
+    story_type = callback.data.split("_")[1]
+
+    story_intros = {
+        "castle": "🏰 ʏᴏᴜ ᴀᴘᴘʀᴏᴀᴄʜ ᴛʜᴇ ᴍʏsᴛᴇʀɪᴏᴜs ᴄᴀsᴛʟᴇ... ᴀ ғɪɢᴜʀᴇ ᴀᴘᴘᴇᴀʀs ɪɴ ᴛʜᴇ ᴡɪɴᴅᴏᴡ...",
+        "mermaid": "🌊 ʏᴏᴜ ᴅɪᴠᴇ ɪɴᴛᴏ ᴛʜᴇ ᴄʀʏsᴛᴀʟ ᴡᴀᴛᴇʀs... ᴀ ʙᴇᴀᴜᴛɪғᴜʟ ᴍᴇʀᴍᴀɪᴅ sᴡɪᴍs ᴛᴏᴡᴀʀᴅs ʏᴏᴜ...",
+        "space": "🚀 ғʟᴏᴀᴛɪɴɢ ɪɴ ᴢᴇʀᴏ ɢʀᴀᴠɪᴛʏ... ᴀɴ ᴀsᴛʀᴏɴᴀᴜᴛ ғʀᴏᴍ ᴀɴᴏᴛʜᴇʀ sʜɪᴘ ᴀᴘᴘʀᴏᴀᴄʜᴇs..."
+    }
+
+    intro = story_intros.get(story_type, "✨ ʏᴏᴜʀ ᴀᴅᴠᴇɴᴛᴜʀᴇ ʙᴇɢɪɴs...")
+
+    await callback.message.edit_text(
+        format_reply(f"📚 sᴛᴏʀʏ ʙᴇɢɪɴs 📚\n\n{intro}\n\nᴡʜᴀᴛ ᴅᴏ ʏᴏᴜ ᴅᴏ?"),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("💬 sᴀʏ ʜᴇʟʟᴏ", callback_data=f"story_action_hello_{story_type}"),
+             InlineKeyboardButton("👋 ᴡᴀᴠᴇ", callback_data=f"story_action_wave_{story_type}")],
+            [InlineKeyboardButton("💕 sᴍɪʟᴇ", callback_data=f"story_action_smile_{story_type}"),
+             InlineKeyboardButton("🏃 ʀᴜɴ ᴀᴡᴀʏ", callback_data=f"story_action_run_{story_type}")]
+        ])
     )
     await callback.answer()

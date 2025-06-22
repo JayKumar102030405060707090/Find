@@ -213,6 +213,190 @@ async def ranking_system_menu(bot, callback: CallbackQuery):
     )
     await callback.answer()
 
+@Client.on_callback_query(filters.regex("game_"))
+async def handle_mini_games(bot, callback: CallbackQuery):
+    game_type = callback.data.split("_")[1]
+    
+    game_results = {
+        "aim": "🎯 ʙᴜʟʟsᴇʏᴇ! ʏᴏᴜ ʜɪᴛ ᴛʜᴇ ᴛᴀʀɢᴇᴛ! +20 ᴄᴏɪɴs",
+        "puzzle": "🧩 ᴘᴜᴢᴢʟᴇ sᴏʟᴠᴇᴅ! ʏᴏᴜ'ʀᴇ sᴏ sᴍᴀʀᴛ! +15 ᴄᴏɪɴs",
+        "rhythm": "🎵 ᴘᴇʀғᴇᴄᴛ ʀʜʏᴛʜᴍ! ʏᴏᴜ'ʀᴇ ᴀ ᴍᴜsɪᴄ ᴍᴀsᴛᴇʀ! +25 ᴄᴏɪɴs",
+        "cards": "🃏 ᴄᴀʀᴅ ᴍᴀᴛᴄʜ! ʟᴜᴄᴋʏ ʏᴏᴜ! +18 ᴄᴏɪɴs",
+        "bottle": "🎪 ʙᴏᴛᴛʟᴇ ᴘᴏɪɴᴛs ᴛᴏ... ʏᴏᴜʀ ᴄʀᴜsʜ! +30 ᴄᴏɪɴs",
+        "dice": "🎲 ʟᴜᴄᴋʏ ʀᴏʟʟ! ᴅᴏᴜʙʟᴇ sɪx! +35 ᴄᴏɪɴs",
+        "stars": "🌟 sᴛᴀʀ ᴄᴀᴜɢʜᴛ! ᴍᴀᴋᴇ ᴀ ᴡɪsʜ! +22 ᴄᴏɪɴs",
+        "memory": "💫 ᴘᴇʀғᴇᴄᴛ ᴍᴇᴍᴏʀʏ! ʏᴏᴜ'ʀᴇ ᴀᴍᴀᴢɪɴɢ! +28 ᴄᴏɪɴs"
+    }
+    
+    result = game_results.get(game_type, "🎮 ɢᴀᴍᴇ ᴄᴏᴍᴘʟᴇᴛᴇ! +10 ᴄᴏɪɴs")
+    coins_earned = random.randint(10, 35)
+    
+    # Update user coins
+    users.update_one(
+        {"_id": callback.from_user.id},
+        {"$inc": {"coins": coins_earned}}
+    )
+    
+    await callback.message.edit_text(
+        format_reply(f"🎮 ɢᴀᴍᴇ ʀᴇsᴜʟᴛ 🎮\n\n{result}\n\nᴛᴏᴛᴀʟ ᴇᴀʀɴᴇᴅ: {coins_earned} ᴄᴏɪɴs! 💰"),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("🎮 ᴘʟᴀʏ ᴀɢᴀɪɴ", callback_data="mini_games"),
+             InlineKeyboardButton("💰 ᴠɪᴇᴡ ᴄᴏɪɴs", callback_data="view_profile")]
+        ])
+    )
+    await callback.answer()
+
+@Client.on_callback_query(filters.regex("check_progress"))
+async def check_progress(bot, callback: CallbackQuery):
+    user_data = users.find_one({"_id": callback.from_user.id})
+    
+    progress_text = f"""
+📈 ʏᴏᴜʀ ᴘʀᴏɢʀᴇss 📈
+
+🎯 ᴄᴜʀʀᴇɴᴛ ʟᴇᴠᴇʟ: {user_data.get('level', 1)}
+⭐ ᴇxᴘᴇʀɪᴇɴᴄᴇ ᴘᴏɪɴᴛs: {user_data.get('experience', 0)}
+🏆 ᴀᴄʜɪᴇᴠᴇᴍᴇɴᴛs: {len(user_data.get('achievements', []))}
+💰 ᴛᴏᴛᴀʟ ᴄᴏɪɴs: {user_data.get('coins', 0)}
+💖 ʜᴇᴀʀᴛs ᴇᴀʀɴᴇᴅ: {user_data.get('hearts_received', 0)}
+"""
+    
+    await callback.message.edit_text(
+        format_reply(progress_text),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("🎯 ᴇᴀʀɴ ᴍᴏʀᴇ xᴘ", callback_data="earn_xp"),
+             InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data="view_achievements")]
+        ])
+    )
+    await callback.answer()
+
+@Client.on_callback_query(filters.regex("earn_achievements"))
+async def earn_achievements(bot, callback: CallbackQuery):
+    tips = [
+        "💕 ᴍᴀᴋᴇ ʏᴏᴜʀ ғɪʀsᴛ ᴍᴀᴛᴄʜ ᴛᴏ ᴜɴʟᴏᴄᴋ 'ғɪʀsᴛ ʟᴏᴠᴇ'!",
+        "🎮 ᴘʟᴀʏ 50 ɢᴀᴍᴇs ᴛᴏ ʙᴇᴄᴏᴍᴇ ᴀ 'ɢᴀᴍᴇ ᴍᴀsᴛᴇʀ'!",
+        "💎 ᴜᴘɢʀᴀᴅᴇ ᴛᴏ ᴘʀᴇᴍɪᴜᴍ ғᴏʀ 'ᴘʀᴇᴍɪᴜᴍ ᴇʟɪᴛᴇ' ʙᴀᴅɢᴇ!",
+        "💖 ʀᴇᴄᴇɪᴠᴇ 100 ʜᴇᴀʀᴛs ᴛᴏ ᴜɴʟᴏᴄᴋ 'ʜᴇᴀʀᴛʙʀᴇᴀᴋᴇʀ'!"
+    ]
+    
+    tip = random.choice(tips)
+    
+    await callback.message.edit_text(
+        format_reply(f"💡 ᴀᴄʜɪᴇᴠᴇᴍᴇɴᴛ ᴛɪᴘ 💡\n\n{tip}"),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("🎯 sᴛᴀʀᴛ ɴᴏᴡ", callback_data="find_partner"),
+             InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data="view_achievements")]
+        ])
+    )
+    await callback.answer()
+
+@Client.on_callback_query(filters.regex("challenge_"))
+async def handle_challenges(bot, callback: CallbackQuery):
+    challenge_type = callback.data.split("_")[1]
+    user_id = callback.from_user.id
+    today = datetime.now().strftime("%Y-%m-%d")
+    
+    challenge_rewards = {
+        "send_hearts": {"name": "💖 sᴇɴᴅ ʜᴇᴀʀᴛs", "reward": 20},
+        "play_games": {"name": "🎮 ᴘʟᴀʏ ɢᴀᴍᴇs", "reward": 30},
+        "chat_minutes": {"name": "💬 ᴄʜᴀᴛ ᴛɪᴍᴇ", "reward": 25},
+        "make_friends": {"name": "👥 ᴍᴀᴋᴇ ғʀɪᴇɴᴅs", "reward": 40}
+    }
+    
+    challenge = challenge_rewards.get(challenge_type)
+    if challenge:
+        # Mark challenge as completed
+        users.update_one(
+            {"_id": user_id},
+            {
+                "$addToSet": {f"challenges_{today}": challenge_type},
+                "$inc": {"coins": challenge["reward"]}
+            }
+        )
+        
+        await callback.message.edit_text(
+            format_reply(f"🎯 ᴄʜᴀʟʟᴇɴɢᴇ ᴄᴏᴍᴘʟᴇᴛᴇᴅ! 🎯\n\n{challenge['name']} ✅\nʀᴇᴡᴀʀᴅ: {challenge['reward']} ᴄᴏɪɴs! 💰"),
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("🎯 ᴍᴏʀᴇ ᴄʜᴀʟʟᴇɴɢᴇs", callback_data="daily_challenges"),
+                 InlineKeyboardButton("💰 ᴠɪᴇᴡ ᴄᴏɪɴs", callback_data="view_profile")]
+            ])
+        )
+    
+    await callback.answer()
+
+@Client.on_callback_query(filters.regex("find_opponent"))
+async def find_opponent(bot, callback: CallbackQuery):
+    opponents = [
+        "🔥 ғɪʀᴇ ᴅʀᴀɢᴏɴ", "⚡ ʟɪɢʜᴛɴɪɴɢ ᴡᴀʀʀɪᴏʀ", 
+        "🌊 ᴡᴀᴛᴇʀ ᴍᴀɢᴇ", "🌪️ ᴡɪɴᴅ ᴀssᴀssɪɴ"
+    ]
+    
+    opponent = random.choice(opponents)
+    win_chance = random.randint(1, 2)
+    
+    if win_chance == 1:
+        result = f"🏆 ᴠɪᴄᴛᴏʀʏ! ʏᴏᴜ ᴅᴇғᴇᴀᴛᴇᴅ {opponent}!"
+        coins = 50
+    else:
+        result = f"💪 ɢᴏᴏᴅ ғɪɢʜᴛ! {opponent} ᴡᴏɴ ᴛʜɪs ᴛɪᴍᴇ!"
+        coins = 20
+    
+    users.update_one(
+        {"_id": callback.from_user.id},
+        {"$inc": {"coins": coins, "battles_fought": 1}}
+    )
+    
+    await callback.message.edit_text(
+        format_reply(f"⚔️ ʙᴀᴛᴛʟᴇ ʀᴇsᴜʟᴛ ⚔️\n\n{result}\n\nᴇᴀʀɴᴇᴅ: {coins} ᴄᴏɪɴs! 💰"),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("⚔️ ғɪɢʜᴛ ᴀɢᴀɪɴ", callback_data="find_opponent"),
+             InlineKeyboardButton("🏆 ʙᴀᴛᴛʟᴇ ʜɪsᴛᴏʀʏ", callback_data="battle_history")]
+        ])
+    )
+    await callback.answer()
+
+@Client.on_callback_query(filters.regex("battle_history"))
+async def battle_history(bot, callback: CallbackQuery):
+    user_data = users.find_one({"_id": callback.from_user.id})
+    battles = user_data.get("battles_fought", 0)
+    wins = user_data.get("battles_won", 0)
+    
+    history_text = f"""
+🏆 ʙᴀᴛᴛʟᴇ ʜɪsᴛᴏʀʏ 🏆
+
+⚔️ ᴛᴏᴛᴀʟ ʙᴀᴛᴛʟᴇs: {battles}
+🏆 ᴠɪᴄᴛᴏʀɪᴇs: {wins}
+📊 ᴡɪɴ ʀᴀᴛᴇ: {(wins/battles*100) if battles > 0 else 0:.1f}%
+🏅 ʙᴀᴛᴛʟᴇ ʀᴀɴᴋ: {"🥇 ᴄʜᴀᴍᴘɪᴏɴ" if wins > 10 else "🥈 ᴡᴀʀʀɪᴏʀ" if wins > 5 else "🥉 ʀᴏᴏᴋɪᴇ"}
+"""
+    
+    await callback.message.edit_text(
+        format_reply(history_text),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("⚔️ ɴᴇᴡ ʙᴀᴛᴛʟᴇ", callback_data="find_opponent"),
+             InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data="pvp_battles")]
+        ])
+    )
+    await callback.answer()
+
+@Client.on_callback_query(filters.regex("training_mode"))
+async def training_mode(bot, callback: CallbackQuery):
+    training_results = [
+        "💪 sᴛʀᴇɴɢᴛʜ +5! ʏᴏᴜ'ʀᴇ ɢᴇᴛᴛɪɴɢ sᴛʀᴏɴɢᴇʀ!",
+        "🏃 sᴘᴇᴇᴅ +3! ғᴀsᴛᴇʀ ᴛʜᴀɴ ʟɪɢʜᴛɴɪɴɢ!",
+        "🧠 ɪɴᴛᴇʟʟɪɢᴇɴᴄᴇ +4! ᴛᴀᴄᴛɪᴄᴀʟ ᴍᴀsᴛᴇʀ!"
+    ]
+    
+    result = random.choice(training_results)
+    
+    await callback.message.edit_text(
+        format_reply(f"🏋️ ᴛʀᴀɪɴɪɴɢ ᴄᴏᴍᴘʟᴇᴛᴇ! 🏋️\n\n{result}"),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("💪 ᴛʀᴀɪɴ ᴀɢᴀɪɴ", callback_data="training_mode"),
+             InlineKeyboardButton("⚔️ ʀᴇᴀʟ ʙᴀᴛᴛʟᴇ", callback_data="find_opponent")]
+        ])
+    )
+    await callback.answer()
+
 @Client.on_callback_query(filters.regex("pvp_battles"))
 async def pvp_battles_menu(bot, callback: CallbackQuery):
     battle_keyboard = InlineKeyboardMarkup([
