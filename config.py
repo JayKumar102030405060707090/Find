@@ -14,5 +14,8 @@ FEATURE_UNLOCK_COINS = 30
 # ✅ Updated MongoDB URI 
 MONGO_URL = "mongodb+srv://jaydipmore74:xCpTm5OPAfRKYnif@cluster0.5jo18.mongodb.net/?retryWrites=true&w=majority"
 
+# Bot username for referral links
+BOT_USERNAME = "FindPartnerBot"  # Replace with your actual bot username
+
 # Allowed genders
-GENDERS = ["Male", "Female", "Other"]
+GENDERS = ["Male", "Female", "Other"]"]

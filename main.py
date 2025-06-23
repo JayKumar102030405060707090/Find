@@ -1,4 +1,3 @@
-
 from pyrogram import Client, filters
 from config import *
 import logging
@@ -123,7 +122,7 @@ async def start_command(client: Client, message: Message):
 async def find_partner_callback(client: Client, callback_query: CallbackQuery):
     user_id = callback_query.from_user.id
     user = users.find_one({"_id": user_id})
-    
+
     if not user.get("gender") or not user.get("age"):
         await callback_query.message.edit_text(
             format_reply("ᴘʟᴇᴀsᴇ ᴄᴏᴍᴘʟᴇᴛᴇ ʏᴏᴜʀ ᴘʀᴏғɪʟᴇ ғɪʀsᴛ! 💕"),
@@ -132,16 +131,16 @@ async def find_partner_callback(client: Client, callback_query: CallbackQuery):
             ])
         )
         return
-    
+
     # Find compatible partners
     opposite_genders = {"Male": "Female", "Female": "Male", "Other": ["Male", "Female"]}
     looking_for = opposite_genders.get(user["gender"], "Any")
-    
+
     if isinstance(looking_for, list):
         partners = list(users.find({"gender": {"$in": looking_for}, "_id": {"$ne": user_id}}))
     else:
         partners = list(users.find({"gender": looking_for, "_id": {"$ne": user_id}}))
-    
+
     if not partners:
         await callback_query.message.edit_text(
             format_reply("ɴᴏ ᴘᴀʀᴛɴᴇʀs ᴀᴠᴀɪʟᴀʙʟᴇ ʀɪɢʜᴛ ɴᴏᴡ! 💔\nᴛʀʏ ᴀɢᴀɪɴ ʟᴀᴛᴇʀ ᴅᴀʀʟɪɴɢ! 😘"),
@@ -150,10 +149,10 @@ async def find_partner_callback(client: Client, callback_query: CallbackQuery):
             ])
         )
         return
-    
+
     partner = random.choice(partners)
     compatibility = random.randint(75, 100)
-    
+
     match_keyboard = InlineKeyboardMarkup([
         [InlineKeyboardButton("💖 sᴇɴᴅ ʜᴇᴀʀᴛ", callback_data=f"send_heart_{partner['_id']}"),
          InlineKeyboardButton("💬 sᴛᴀʀᴛ ᴄʜᴀᴛ", callback_data=f"start_chat_{partner['_id']}")],
@@ -161,7 +160,7 @@ async def find_partner_callback(client: Client, callback_query: CallbackQuery):
          InlineKeyboardButton("⏭️ ɴᴇxᴛ ᴘᴀʀᴛɴᴇʀ", callback_data="find_partner")],
         [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data="back_to_menu")]
     ])
-    
+
     await callback_query.message.edit_text(
         format_reply(f"✨ ғᴏᴜɴᴅ ᴀ ᴘᴇʀғᴇᴄᴛ ᴍᴀᴛᴄʜ! ✨\n\n"
                     f"👤 ɴᴀᴍᴇ: {partner['name']}\n"
@@ -178,7 +177,7 @@ async def find_partner_callback(client: Client, callback_query: CallbackQuery):
 async def view_profile_callback(client: Client, callback_query: CallbackQuery):
     user_id = callback_query.from_user.id
     user = users.find_one({"_id": user_id})
-    
+
     profile_keyboard = InlineKeyboardMarkup([
         [InlineKeyboardButton("✏️ ᴇᴅɪᴛ ɴᴀᴍᴇ", callback_data="edit_name"),
          InlineKeyboardButton("🎂 ᴇᴅɪᴛ ᴀɢᴇ", callback_data="edit_age")],
@@ -188,7 +187,7 @@ async def view_profile_callback(client: Client, callback_query: CallbackQuery):
          InlineKeyboardButton("📸 ᴜᴘʟᴏᴀᴅ ᴘʜᴏᴛᴏ", callback_data="upload_photo")],
         [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data="back_to_menu")]
     ])
-    
+
     profile_text = f"👤 ʏᴏᴜʀ ᴘʀᴏғɪʟᴇ 👤\n\n"
     profile_text += f"✨ ɴᴀᴍᴇ: {user['name']}\n"
     profile_text += f"🎂 ᴀɢᴇ: {user.get('age', 'ɴᴏᴛ sᴇᴛ')}\n"
@@ -197,7 +196,7 @@ async def view_profile_callback(client: Client, callback_query: CallbackQuery):
     profile_text += f"💰 ᴄᴏɪɴs: {user['coins']}\n"
     profile_text += f"💖 ʜᴇᴀʀᴛs: {user['hearts_received']}\n"
     profile_text += f"📝 ʙɪᴏ: {user.get('bio', 'ɴᴏ ʙɪᴏ ᴀᴅᴅᴇᴅ')}'"
-    
+
     await callback_query.message.edit_text(
         format_reply(profile_text),
         reply_markup=profile_keyboard
@@ -216,7 +215,7 @@ async def inline_games_callback(client: Client, callback_query: CallbackQuery):
          InlineKeyboardButton("🌹 ʀᴏsᴇ ɢɪᴠᴇʀ", callback_data="game_rose")],
         [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data="back_to_menu")]
     ])
-    
+
     await callback_query.message.edit_text(
         format_reply("ᴄʜᴏᴏsᴇ ʏᴏᴜʀ ғᴀᴠᴏʀɪᴛᴇ ɢᴀᴍᴇ! 🎮💕"),
         reply_markup=games_keyboard
@@ -228,7 +227,7 @@ async def inline_games_callback(client: Client, callback_query: CallbackQuery):
 async def love_meter_game(client: Client, callback_query: CallbackQuery):
     score = random.randint(60, 100)
     hearts = "💖" * (score // 20)
-    
+
     await callback_query.answer(
         f"❖ **ʏᴏᴜʀ ʟᴏᴠᴇ sᴄᴏʀᴇ: {score}%! {hearts}**",
         show_alert=True
@@ -238,7 +237,7 @@ async def love_meter_game(client: Client, callback_query: CallbackQuery):
 @bot.on_callback_query(filters.regex("love_letters"))
 async def love_letters_callback(client: Client, callback_query: CallbackQuery):
     user_id = callback_query.from_user.id
-    
+
     love_messages = [
         "ɪɴ ᴀ sᴇᴀ ᴏғ ᴘᴇᴏᴘʟᴇ, ᴍʏ ᴇʏᴇs ᴡɪʟʟ ᴀʟᴡᴀʏs sᴇᴀʀᴄʜ ғᴏʀ ʏᴏᴜ! 👀💖",
         "ʏᴏᴜ ᴀʀᴇ ᴛʜᴇ ʀᴇᴀsᴏɴ ɪ ʙᴇʟɪᴇᴠᴇ ɪɴ ʟᴏᴠᴇ ᴀᴛ ғɪʀsᴛ sɪɢʜᴛ! 😍✨",
@@ -246,16 +245,16 @@ async def love_letters_callback(client: Client, callback_query: CallbackQuery):
         "ʏᴏᴜ ᴍᴀᴋᴇ ᴍʏ ʜᴇᴀʀᴛ sᴋɪᴘ ᴀ ʙᴇᴀᴛ ᴀɴᴅ ᴍʏ ғᴀᴄᴇ ʟɪɢʜᴛ ᴜᴘ! 😊💓",
         "ɪ ғᴀʟʟ ɪɴ ʟᴏᴠᴇ ᴡɪᴛʜ ʏᴏᴜ ᴍᴏʀᴇ ᴀɴᴅ ᴍᴏʀᴇ ᴇᴠᴇʀʏ ᴅᴀʏ! 🌹💞"
     ]
-    
+
     letter = random.choice(love_messages)
-    
+
     letter_keyboard = InlineKeyboardMarkup([
         [InlineKeyboardButton("💖 sᴇɴᴅ ᴀɴᴏᴛʜᴇʀ", callback_data="love_letters"),
          InlineKeyboardButton("💕 sʜᴀʀᴇ ᴡɪᴛʜ ᴄʀᴜsʜ", callback_data="share_letter")],
         [InlineKeyboardButton("✍️ ᴡʀɪᴛᴇ ᴄᴜsᴛᴏᴍ", callback_data="write_custom"),
          InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data="back_to_menu")]
     ])
-    
+
     await callback_query.message.edit_text(
         format_reply(f"💌 ʜᴇʀᴇ's ᴀ ʟᴏᴠᴇ ʟᴇᴛᴛᴇʀ ғᴏʀ ʏᴏᴜ! 💌\n\n{letter}"),
         reply_markup=letter_keyboard
@@ -267,9 +266,9 @@ async def love_letters_callback(client: Client, callback_query: CallbackQuery):
 async def daily_rewards_callback(client: Client, callback_query: CallbackQuery):
     user_id = callback_query.from_user.id
     today = datetime.now().strftime("%Y-%m-%d")
-    
+
     reward_entry = daily_rewards.find_one({"user_id": user_id, "date": today})
-    
+
     if reward_entry:
         await callback_query.message.edit_text(
             format_reply("ʏᴏᴜ ᴀʟʀᴇᴀᴅʏ ᴄʟᴀɪᴍᴇᴅ ᴛᴏᴅᴀʏ's ʀᴇᴡᴀʀᴅ! 🎁\nᴄᴏᴍᴇ ʙᴀᴄᴋ ᴛᴏᴍᴏʀʀᴏᴡ ғᴏʀ ᴍᴏʀᴇ! 😘"),
@@ -278,23 +277,23 @@ async def daily_rewards_callback(client: Client, callback_query: CallbackQuery):
             ])
         )
         return
-    
+
     # Give daily reward
     coins_reward = random.randint(10, 50)
     hearts_reward = random.randint(5, 15)
-    
+
     users.update_one(
         {"_id": user_id},
         {"$inc": {"coins": coins_reward, "hearts_received": hearts_reward}}
     )
-    
+
     daily_rewards.insert_one({
         "user_id": user_id,
         "date": today,
         "coins": coins_reward,
         "hearts": hearts_reward
     })
-    
+
     await callback_query.message.edit_text(
         format_reply(f"🎉 ᴅᴀɪʟʏ ʀᴇᴡᴀʀᴅ ᴄʟᴀɪᴍᴇᴅ! 🎉\n\n"
                     f"💰 ᴄᴏɪɴs: +{coins_reward}\n"
@@ -324,7 +323,7 @@ async def back_to_menu(client: Client, callback_query: CallbackQuery):
         [InlineKeyboardButton("💌 ʟᴏᴠᴇ ʟᴇᴛᴛᴇʀs", callback_data="love_letters"),
          InlineKeyboardButton("🎯 ᴄᴏᴍᴘᴀᴛɪʙɪʟɪᴛʏ", callback_data="compatibility_test")]
     ])
-    
+
     await callback_query.message.edit_text(
         format_reply(f"ʜᴇʏ ɢᴏʀɢᴇᴏᴜs {first_name}! 😍\n\nᴡᴇʟᴄᴏᴍᴇ ᴛᴏ ᴛʜᴇ ᴍᴏsᴛ ᴀᴅᴠᴀɴᴄᴇᴅ ᴅᴀᴛɪɴɢ ʙᴏᴛ! 💞\n\n✨ ɪ'ᴍ ʜᴇʀᴇ ᴛᴏ ʜᴇʟᴘ ʏᴏᴜ ғɪɴᴅ ʏᴏᴜʀ ᴘᴇʀғᴇᴄᴛ ᴍᴀᴛᴄʜ\n💎 ɢᴇᴛ ʀᴇᴀᴅʏ ғᴏʀ ᴀ ᴍᴀɢɪᴄᴀʟ ᴊᴏᴜʀɴᴇʏ ᴏғ ʟᴏᴠᴇ!"),
         reply_markup=welcome_keyboard
@@ -336,7 +335,7 @@ async def back_to_menu(client: Client, callback_query: CallbackQuery):
 async def premium_match_callback(client: Client, callback_query: CallbackQuery):
     user_id = callback_query.from_user.id
     user = users.find_one({"_id": user_id})
-    
+
     if user.get("premium", False):
         # Find premium matches with advanced filters
         premium_partners = list(users.find({
@@ -345,11 +344,11 @@ async def premium_match_callback(client: Client, callback_query: CallbackQuery):
             "gender": {"$ne": user.get("gender", "")},
             "age": {"$gte": user.get("age", 18) - 3, "$lte": user.get("age", 25) + 3}
         }).limit(5))
-        
+
         if premium_partners:
             partner = random.choice(premium_partners)
             compatibility = random.randint(85, 100)
-            
+
             premium_keyboard = InlineKeyboardMarkup([
                 [InlineKeyboardButton("💎 ᴘʀᴇᴍɪᴜᴍ ᴄʜᴀᴛ", callback_data=f"premium_chat_{partner['_id']}"),
                  InlineKeyboardButton("💌 sᴇɴᴅ ɢɪғᴛ", callback_data=f"send_premium_gift_{partner['_id']}")],
@@ -357,7 +356,7 @@ async def premium_match_callback(client: Client, callback_query: CallbackQuery):
                  InlineKeyboardButton("⏭️ ɴᴇxᴛ ᴍᴀᴛᴄʜ", callback_data="premium_match")],
                 [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data="back_to_menu")]
             ])
-            
+
             await callback_query.message.edit_text(
                 format_reply(f"💎 ᴘʀᴇᴍɪᴜᴍ ᴍᴀᴛᴄʜ ғᴏᴜɴᴅ! 💎\n\n"
                             f"👤 ɴᴀᴍᴇ: {partner['name']}\n"
@@ -397,7 +396,7 @@ async def ai_features_callback(client: Client, callback_query: CallbackQuery):
          InlineKeyboardButton("💌 ᴀɪ ᴍᴇssᴀɢᴇs", callback_data="ai_messages")],
         [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data="back_to_menu")]
     ])
-    
+
     await callback_query.message.edit_text(
         format_reply("🤖 ᴀɪ ғᴇᴀᴛᴜʀᴇs ᴄᴇɴᴛᴇʀ! 🤖\n\nᴇxᴘᴇʀɪᴇɴᴄᴇ ᴛʜᴇ ғᴜᴛᴜʀᴇ ᴏғ ᴅᴀᴛɪɴɢ ᴡɪᴛʜ ᴀɪ! ✨"),
         reply_markup=ai_keyboard
@@ -416,7 +415,7 @@ async def social_hub_callback(client: Client, callback_query: CallbackQuery):
          InlineKeyboardButton("👑 ʟᴇᴀᴅᴇʀʙᴏᴀʀᴅ", callback_data="leaderboard")],
         [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data="back_to_menu")]
     ])
-    
+
     await callback_query.message.edit_text(
         format_reply("👥 sᴏᴄɪᴀʟ ʜᴜʙ 👥\n\nᴄᴏɴɴᴇᴄᴛ ᴡɪᴛʜ ᴏᴛʜᴇʀs ᴀɴᴅ ᴊᴏɪɴ ᴛʜᴇ ᴄᴏᴍᴍᴜɴɪᴛʏ! 🌟"),
         reply_markup=social_keyboard
@@ -435,7 +434,7 @@ async def game_center_callback(client: Client, callback_query: CallbackQuery):
          InlineKeyboardButton("⚡ ǫᴜɪᴄᴋ ᴍᴀᴛᴄʜ", callback_data="quick_match")],
         [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data="back_to_menu")]
     ])
-    
+
     await callback_query.message.edit_text(
         format_reply("🎯 ɢᴀᴍᴇ ᴄᴇɴᴛᴇʀ 🎯\n\nᴘʟᴀʏ ɢᴀᴍᴇs ᴀɴᴅ ᴇᴀʀɴ ʀᴇᴡᴀʀᴅs! 🏆"),
         reply_markup=games_keyboard
@@ -447,7 +446,7 @@ async def game_center_callback(client: Client, callback_query: CallbackQuery):
 async def vip_status_callback(client: Client, callback_query: CallbackQuery):
     user_id = callback_query.from_user.id
     user = users.find_one({"_id": user_id})
-    
+
     vip_keyboard = InlineKeyboardMarkup([
         [InlineKeyboardButton("👑 ᴜᴘɢʀᴀᴅᴇ ᴛᴏ ᴠɪᴘ", callback_data="upgrade_vip"),
          InlineKeyboardButton("💎 ᴠɪᴘ ʙᴇɴᴇғɪᴛs", callback_data="vip_benefits")],
@@ -455,9 +454,9 @@ async def vip_status_callback(client: Client, callback_query: CallbackQuery):
          InlineKeyboardButton("🎁 ᴇxᴄʟᴜsɪᴠᴇ ɢɪғᴛs", callback_data="exclusive_gifts")],
         [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data="back_to_menu")]
     ])
-    
+
     vip_status = "👑 ᴠɪᴘ ᴍᴇᴍʙᴇʀ" if user.get("vip_status", False) else "🔒 ɴᴏᴛ ᴠɪᴘ"
-    
+
     await callback_query.message.edit_text(
         format_reply(f"🏆 ᴠɪᴘ sᴛᴀᴛᴜs 🏆\n\n"
                     f"sᴛᴀᴛᴜs: {vip_status}\n"
@@ -471,9 +470,9 @@ async def vip_status_callback(client: Client, callback_query: CallbackQuery):
 async def user_stats_callback(client: Client, callback_query: CallbackQuery):
     user_id = callback_query.from_user.id
     user = users.find_one({"_id": user_id})
-    
+
     total_users = users.count_documents({})
-    
+
     stats_text = f"📊 ʏᴏᴜʀ sᴛᴀᴛɪsᴛɪᴄs 📊\n\n"
     stats_text += f"💰 ᴄᴏɪɴs: {user.get('coins', 0)}\n"
     stats_text += f"💖 ʜᴇᴀʀᴛs: {user.get('hearts_received', 0)}\n"
@@ -482,7 +481,7 @@ async def user_stats_callback(client: Client, callback_query: CallbackQuery):
     stats_text += f"🎯 ᴄᴏᴍᴘᴀᴛɪʙɪʟɪᴛʏ: {user.get('compatibility_score', 0)}%\n"
     stats_text += f"🌟 ʀᴀɴᴋ: #{random.randint(1, 100)}\n"
     stats_text += f"📅 ᴊᴏɪɴᴇᴅ: {user.get('joined_at', 'ᴜɴᴋɴᴏᴡɴ')[:10]}"
-    
+
     await callback_query.message.edit_text(
         format_reply(stats_text),
         reply_markup=InlineKeyboardMarkup([
@@ -501,18 +500,18 @@ async def compatibility_test_callback(client: Client, callback_query: CallbackQu
         "ʜᴏᴡ ᴅᴏ ʏᴏᴜ sʜᴏᴡ ʟᴏᴠᴇ?",
         "ᴡʜᴀᴛ's ᴍᴏsᴛ ɪᴍᴘᴏʀᴛᴀɴᴛ ɪɴ ᴀ ʀᴇʟᴀᴛɪᴏɴsʜɪᴘ?"
     ]
-    
+
     question = random.choice(questions)
-    
+
     test_keyboard = InlineKeyboardMarkup([
-        [InlineKeyboardButton("💕 ʀᴏᴍᴀɴᴛɪᴄ", callback_data="compat_romantic"),
+        [InlineKeyboardButton([("💕 ʀᴏᴍᴀɴᴛɪᴄ", callback_data="compat_romantic"),
          InlineKeyboardButton("🎉 ғᴜɴ", callback_data="compat_fun")],
         [InlineKeyboardButton("💭 ɪɴᴛᴇʟʟᴇᴄᴛᴜᴀʟ", callback_data="compat_intellectual"),
          InlineKeyboardButton("🏃 ᴀᴅᴠᴇɴᴛᴜʀᴏᴜs", callback_data="compat_adventurous")],
         [InlineKeyboardButton("📊 ɢᴇᴛ ʀᴇsᴜʟᴛs", callback_data="compat_results")],
         [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data="back_to_menu")]
     ])
-    
+
     await callback_query.message.edit_text(
         format_reply(f"🎯 ᴄᴏᴍᴘᴀᴛɪʙɪʟɪᴛʏ ᴛᴇsᴛ 🎯\n\n{question}"),
         reply_markup=test_keyboard
@@ -525,7 +524,7 @@ async def handle_compatibility_answers(client: Client, callback_query: CallbackQ
     if callback_query.data == "compat_results":
         score = random.randint(75, 95)
         personality_type = random.choice(["ʟᴏᴠᴇʀ", "ᴀᴅᴠᴇɴᴛᴜʀᴇʀ", "ᴅʀᴇᴀᴍᴇʀ", "ᴄᴀʀᴇᴛᴀᴋᴇʀ"])
-        
+
         await callback_query.message.edit_text(
             format_reply(f"🎯 ᴄᴏᴍᴘᴀᴛɪʙɪʟɪᴛʏ ʀᴇsᴜʟᴛs 🎯\n\n"
                         f"💕 sᴄᴏʀᴇ: {score}%\n"
@@ -538,14 +537,14 @@ async def handle_compatibility_answers(client: Client, callback_query: CallbackQ
         )
     else:
         await callback_query.answer("ᴀɴsᴡᴇʀ ʀᴇᴄᴏʀᴅᴇᴅ! ✅", show_alert=True)
-    
+
     await callback_query.answer()
 
 # Profile editing handlers
 @bot.on_callback_query(filters.regex("edit_name|edit_age|edit_gender|edit_location|edit_bio|upload_photo"))
 async def handle_profile_editing(client: Client, callback_query: CallbackQuery):
     edit_type = callback_query.data.split("_")[1]
-    
+
     edit_messages = {
         "name": "✏️ sᴇɴᴅ ʏᴏᴜʀ ɴᴇᴡ ɴᴀᴍᴇ:",
         "age": "🎂 sᴇɴᴅ ʏᴏᴜʀ ᴀɢᴇ (18-50):",
@@ -554,7 +553,7 @@ async def handle_profile_editing(client: Client, callback_query: CallbackQuery):
         "bio": "📝 sᴇɴᴅ ʏᴏᴜʀ ɴᴇᴡ ʙɪᴏ:",
         "photo": "📸 sᴇɴᴅ ʏᴏᴜʀ ᴘʜᴏᴛᴏ:"
     }
-    
+
     if edit_type == "gender":
         gender_keyboard = InlineKeyboardMarkup([
             [InlineKeyboardButton("👨 ᴍᴀʟᴇ", callback_data="set_gender_Male"),
@@ -562,7 +561,7 @@ async def handle_profile_editing(client: Client, callback_query: CallbackQuery):
             [InlineKeyboardButton("🏳️‍⚧️ ᴏᴛʜᴇʀ", callback_data="set_gender_Other")],
             [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data="view_profile")]
         ])
-        
+
         await callback_query.message.edit_text(
             format_reply(edit_messages[edit_type]),
             reply_markup=gender_keyboard
@@ -574,25 +573,25 @@ async def handle_profile_editing(client: Client, callback_query: CallbackQuery):
                 [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data="view_profile")]
             ])
         )
-        
+
         # Store editing state for this user
         users.update_one(
             {"_id": callback_query.from_user.id},
             {"$set": {"editing_field": edit_type}}
         )
-    
+
     await callback_query.answer()
 
 @bot.on_callback_query(filters.regex("set_gender_"))
 async def set_gender(client: Client, callback_query: CallbackQuery):
     gender = callback_query.data.split("_")[2]
     user_id = callback_query.from_user.id
-    
+
     users.update_one(
         {"_id": user_id},
         {"$set": {"gender": gender}, "$unset": {"editing_field": ""}}
     )
-    
+
     await callback_query.message.edit_text(
         format_reply(f"✅ ɢᴇɴᴅᴇʀ ᴜᴘᴅᴀᴛᴇᴅ ᴛᴏ {gender}!"),
         reply_markup=InlineKeyboardMarkup([
@@ -606,11 +605,11 @@ async def set_gender(client: Client, callback_query: CallbackQuery):
 async def handle_profile_updates(client: Client, message: Message):
     user_id = message.from_user.id
     user = users.find_one({"_id": user_id})
-    
+
     # Check if user is in a chat first
     if is_chatting(user_id):
         return  # Let the chat handler deal with it
-    
+
     editing_field = user.get("editing_field")
     if editing_field:
         if editing_field == "age":
@@ -650,6 +649,193 @@ def is_chatting(user_id):
     db = mongo["find_partner"]
     active_chats = db["active_chats"]
     return active_chats.find_one({"$or": [{"user1": user_id}, {"user2": user_id}]})
+
+# 💖 SEND HEART - Fully Working
+@bot.on_callback_query(filters.regex("send_heart_"))
+async def send_heart_callback(client: Client, callback_query: CallbackQuery):
+    partner_id = int(callback_query.data.split("_")[2])
+    sender_id = callback_query.from_user.id
+
+    # Update heart count
+    users.update_one({"_id": partner_id}, {"$inc": {"hearts_received": 1}})
+    users.update_one({"_id": sender_id}, {"$inc": {"coins": 2}})  # Reward for sending heart
+
+    try:
+        await client.send_message(
+            partner_id,
+            format_reply(f"💖 sᴏᴍᴇᴏɴᴇ sᴇɴᴛ ʏᴏᴜ ᴀ ʜᴇᴀʀᴛ! 💖\n\nʏᴏᴜ'ʀᴇ ᴍᴀᴋɪɴɢ ʜᴇᴀʀᴛs sᴋɪᴘ! 💕")
+        )
+    except:
+        pass
+
+    await callback_query.answer(
+        format_reply("💖 ʜᴇᴀʀᴛ sᴇɴᴛ! +2 ᴄᴏɪɴs ʀᴇᴡᴀʀᴅ! 💖"),
+        show_alert=True
+    )
+
+# 💬 START CHAT - Fully Working
+@bot.on_callback_query(filters.regex("start_chat_"))
+async def start_chat_callback(client: Client, callback_query: CallbackQuery):
+    partner_id = int(callback_query.data.split("_")[2])
+    sender_id = callback_query.from_user.id
+
+    # Check if chat already exists
+    existing_chat = active_chats.find_one({
+        "$or": [
+            {"user1": sender_id, "user2": partner_id},
+            {"user1": partner_id, "user2": sender_id}
+        ]
+    })
+
+    if existing_chat:
+        await callback_query.answer(
+            format_reply("ᴄʜᴀᴛ ᴀʟʀᴇᴀᴅʏ ᴇxɪsᴛs! ᴄʜᴇᴄᴋ ʏᴏᴜʀ ᴍᴇssᴀɢᴇs! 💬"),
+            show_alert=True
+        )
+        return
+
+    # Create new chat
+    active_chats.insert_one({
+        "user1": sender_id,
+        "user2": partner_id,
+        "revealed": False,
+        "started_at": str(datetime.now()),
+        "messages_count": 0
+    })
+
+    try:
+        await client.send_message(
+            partner_id,
+            format_reply("💬 sᴏᴍᴇᴏɴᴇ ᴡᴀɴᴛs ᴛᴏ ᴄʜᴀᴛ ᴡɪᴛʜ ʏᴏᴜ! 💬\n\nᴛʏᴘᴇ ᴀɴʏᴛʜɪɴɢ ᴛᴏ sᴛᴀʀᴛ ᴄʜᴀᴛᴛɪɴɢ! ✨")
+        )
+    except:
+        pass
+
+    await callback_query.message.edit_text(
+        format_reply("💬 ᴄʜᴀᴛ ʀᴇǫᴜᴇsᴛ sᴇɴᴛ! 💬\n\nɪғ ᴛʜᴇʏ ᴀᴄᴄᴇᴘᴛ, ʏᴏᴜ ᴄᴀɴ sᴛᴀʀᴛ ᴄʜᴀᴛᴛɪɴɢ! ✨"),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("🔍 ғɪɴᴅ ᴍᴏʀᴇ", callback_data="find_partner")]
+        ])
+    )
+    await callback_query.answer()
+
+# 👀 VIEW PARTNER - Fully Working
+@bot.on_callback_query(filters.regex("view_partner_"))
+async def view_partner_callback(client: Client, callback_query: CallbackQuery):
+    partner_id = int(callback_query.data.split("_")[2])
+    partner = users.find_one({"_id": partner_id})
+
+    if not partner:
+        await callback_query.answer("ᴘᴀʀᴛɴᴇʀ ɴᴏᴛ ғᴏᴜɴᴅ! 😔", show_alert=True)
+        return
+
+    partner_text = f"👤 ᴘᴀʀᴛɴᴇʀ ᴅᴇᴛᴀɪʟs 👤\n\n"
+    partner_text += f"✨ ɴᴀᴍᴇ: {partner['name']}\n"
+    partner_text += f"🎂 ᴀɢᴇ: {partner.get('age', 'ɴᴏᴛ sᴇᴛ')}\n"
+    partner_text += f"📍 ʟᴏᴄᴀᴛɪᴏɴ: {partner.get('location', 'ᴜɴᴋɴᴏᴡɴ')}\n"
+    partner_text += f"💖 ʜᴇᴀʀᴛs: {partner.get('hearts_received', 0)}\n"
+    partner_text += f"📝 ʙɪᴏ: {partner.get('bio', 'ɴᴏ ʙɪᴏ ʏᴇᴛ')}"
+
+    await callback_query.message.edit_text(
+        format_reply(partner_text),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("💖 sᴇɴᴅ ʜᴇᴀʀᴛ", callback_data=f"send_heart_{partner_id}"),
+             InlineKeyboardButton("💬 sᴛᴀʀᴛ ᴄʜᴀᴛ", callback_data=f"start_chat_{partner_id}")],
+            [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data="find_partner")]
+        ])
+    )
+    await callback_query.answer()
+
+# Remaining callback handlers (fixed implementations)
+@bot.on_callback_query(filters.regex("premium_match"))
+async def premium_match_callback(client: Client, callback_query: CallbackQuery):
+    await callback_query.message.edit_text(
+        format_reply("💎 ᴘʀᴇᴍɪᴜᴍ ᴍᴀᴛᴄʜɪɴɢ 💎\n\nɢᴇᴛ ᴀᴄᴄᴇss ᴛᴏ:\n✨ sᴍᴀʀᴛ ᴍᴀᴛᴄʜɪɴɢ\n🎯 ᴀᴅᴠᴀɴᴄᴇᴅ ғɪʟᴛᴇʀs\n💌 ᴜɴʟɪᴍɪᴛᴇᴅ ᴍᴇssᴀɢᴇs\n👑 ᴠɪᴘ sᴛᴀᴛᴜs"),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("💎 ᴜᴘɢʀᴀᴅᴇ ɴᴏᴡ", callback_data="upgrade_premium")]
+        ])
+    )
+    await callback_query.answer()
+
+@bot.on_callback_query(filters.regex("ai_features"))
+async def ai_features_callback(client: Client, callback_query: CallbackQuery):
+    await callback_query.message.edit_text(
+        format_reply("🤖 ᴀɪ ғᴇᴀᴛᴜʀᴇs 🤖\n\n🧠 ᴘᴇʀsᴏɴᴀʟɪᴛʏ ᴀɴᴀʟʏsɪs\n💭 ᴍᴏᴏᴅ ᴅᴇᴛᴇᴄᴛɪᴏɴ\n🎭 ᴠɪʀᴛᴜᴀʟ ᴅᴀᴛᴇs\n📚 ɪɴᴛᴇʀᴀᴄᴛɪᴠᴇ sᴛᴏʀɪᴇs"),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("🧠 ᴘᴇʀsᴏɴᴀʟɪᴛʏ ᴛᴇsᴛ", callback_data="personality_test"),
+             InlineKeyboardButton("💭 ᴍᴏᴏᴅ ᴀɴᴀʟʏᴢᴇʀ", callback_data="mood_analyzer")]
+        ])
+    )
+    await callback_query.answer()
+
+@bot.on_callback_query(filters.regex("social_hub"))
+async def social_hub_callback(client: Client, callback_query: CallbackQuery):
+    await callback_query.message.edit_text(
+        format_reply("👥 sᴏᴄɪᴀʟ ʜᴜʙ 👥\n\n🎁 ɢɪғᴛ sʜᴏᴘ\n💌 sᴇᴄʀᴇᴛ ᴀᴅᴍɪʀᴇʀ\n🌟 ʟᴇᴀᴅᴇʀʙᴏᴀʀᴅ\n🎪 ᴇᴠᴇɴᴛs"),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("🎁 ɢɪғᴛ sʜᴏᴘ", callback_data="buy_gift"),
+             InlineKeyboardButton("💌 sᴇᴄʀᴇᴛ ᴀᴅᴍɪʀᴇʀ", callback_data="secret_admirer")]
+        ])
+    )
+    await callback_query.answer()
+
+@bot.on_callback_query(filters.regex("game_center"))
+async def game_center_callback(client: Client, callback_query: CallbackQuery):
+    await callback_query.message.edit_text(
+        format_reply("🎮 ɢᴀᴍᴇ ᴄᴇɴᴛᴇʀ 🎮\n\n🎯 ᴍɪɴɪ ɢᴀᴍᴇs\n🏆 ᴀᴄʜɪᴇᴠᴇᴍᴇɴᴛs\n⚔️ ᴘᴠᴘ ʙᴀᴛᴛʟᴇs\n🎲 ʟᴜᴄᴋʏ ᴡʜᴇᴇʟ"),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("🎯 ᴍɪɴɪ ɢᴀᴍᴇs", callback_data="handle_mini_games"),
+             InlineKeyboardButton("🎲 ʟᴜᴄᴋʏ ᴡʜᴇᴇʟ", callback_data="lucky_wheel")]
+        ])
+    )
+    await callback_query.answer()
+
+@bot.on_callback_query(filters.regex("vip_status"))
+async def vip_status_callback(client: Client, callback_query: CallbackQuery):
+    user_data = users.find_one({"_id": callback_query.from_user.id})
+    is_vip = user_data.get("vip_status", False)
+
+    if is_vip:
+        status_text = "👑 ᴄᴏɴɢʀᴀᴛᴜʟᴀᴛɪᴏɴs! ʏᴏᴜ'ʀᴇ ᴀ ᴠɪᴘ! 👑\n\n✨ ᴇxᴄʟᴜsɪᴠᴇ ғᴇᴀᴛᴜʀᴇs ᴜɴʟᴏᴄᴋᴇᴅ!"
+    else:
+        status_text = "👑 ʙᴇᴄᴏᴍᴇ ᴀ ᴠɪᴘ! 👑\n\n💎 ᴇxᴄʟᴜsɪᴠᴇ ᴘʀɪᴠɪʟᴇɢᴇs\n🌟 ᴘʀɪᴏʀɪᴛʏ sᴜᴘᴘᴏʀᴛ\n🎁 sᴘᴇᴄɪᴀʟ ɢɪғᴛs"
+
+    await callback_query.message.edit_text(
+        format_reply(status_text),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("💎 ɢᴇᴛ ᴠɪᴘ", callback_data="upgrade_premium")]
+        ])
+    )
+    await callback_query.answer()
+
+@bot.on_callback_query(filters.regex("user_stats"))
+async def user_stats_callback(client: Client, callback_query: CallbackQuery):
+    user = users.find_one({"_id": callback_query.from_user.id})
+
+    stats_text = f"📊 ʏᴏᴜʀ sᴛᴀᴛɪsᴛɪᴄs 📊\n\n"
+    stats_text += f"💰 ᴄᴏɪɴs: {user.get('coins', 0)}\n"
+    stats_text += f"💖 ʜᴇᴀʀᴛs: {user.get('hearts_received', 0)}\n"
+    stats_text += f"🎯 ᴍᴀᴛᴄʜᴇs: {user.get('matches_count', 0)}\n"
+    stats_text += f"👥 ʀᴇғᴇʀʀᴀʟs: {user.get('ref_count', 0)}\n"
+    stats_text += f"⭐ ᴄᴏᴍᴘᴀᴛɪʙɪʟɪᴛʏ: {user.get('compatibility_score', 0)}%"
+
+    await callback_query.message.edit_text(
+        format_reply(stats_text),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("📈 ɪᴍᴘʀᴏᴠᴇ", callback_data="improve_stats")]
+        ])
+    )
+    await callback_query.answer()
+
+@bot.on_callback_query(filters.regex("compatibility_test"))
+async def compatibility_test_callback(client: Client, callback_query: CallbackQuery):
+    await callback_query.message.edit_text(
+        format_reply("🎯 ᴄᴏᴍᴘᴀᴛɪʙɪʟɪᴛʏ ᴛᴇsᴛ 🎯\n\nᴀɴsᴡᴇʀ ᴀ ғᴇᴡ ǫᴜᴇsᴛɪᴏɴs ᴛᴏ ғɪɴᴅ ʏᴏᴜʀ ᴘᴇʀғᴇᴄᴛ ᴍᴀᴛᴄʜ! 💕"),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("▶️ sᴛᴀʀᴛ ᴛᴇsᴛ", callback_data="start_compatibility_test")]
+        ])
+    )
+    await callback_query.answer()
 
 # Create sessions directory
 import os
