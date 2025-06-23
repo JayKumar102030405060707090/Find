@@ -21,6 +21,7 @@ try:
     matches = db["matches"]
     love_letters = db["love_letters"]
     daily_rewards = db["daily_rewards"]
+    active_chats = db["active_chats"]
     LOGS.info("✅ MongoDB connected successfully.")
 except ConnectionFailure as e:
     LOGS.error(f"❌ MongoDB connection failed: {e}")
@@ -504,7 +505,7 @@ async def compatibility_test_callback(client: Client, callback_query: CallbackQu
     question = random.choice(questions)
 
     test_keyboard = InlineKeyboardMarkup([
-        [InlineKeyboardButton([("💕 ʀᴏᴍᴀɴᴛɪᴄ", callback_data="compat_romantic"),
+        [InlineKeyboardButton("💕 ʀᴏᴍᴀɴᴛɪᴄ", callback_data="compat_romantic"),
          InlineKeyboardButton("🎉 ғᴜɴ", callback_data="compat_fun")],
         [InlineKeyboardButton("💭 ɪɴᴛᴇʟʟᴇᴄᴛᴜᴀʟ", callback_data="compat_intellectual"),
          InlineKeyboardButton("🏃 ᴀᴅᴠᴇɴᴛᴜʀᴏᴜs", callback_data="compat_adventurous")],
